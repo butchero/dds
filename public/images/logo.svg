@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="155" height="79" viewBox="0 0 155 79">
+  <defs>
+    <radialGradient id="orb" cx="42%" cy="62%" r="62%">
+      <stop offset="0%" stop-color="#ffd25a"/>
+      <stop offset="25%" stop-color="#ff9c18"/>
+      <stop offset="55%" stop-color="#fa5f00"/>
+      <stop offset="80%" stop-color="#ec2e00"/>
+      <stop offset="100%" stop-color="#d11800"/>
+    </radialGradient>
+    <radialGradient id="halo" cx="50%" cy="50%" r="50%">
+      <stop offset="74%" stop-color="#ff4d1a" stop-opacity=".38"/>
+      <stop offset="100%" stop-color="#ff4d1a" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="specular" x1="0" y1="0" x2=".75" y2="1">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity=".8"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="wordmark" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fb6b10"/>
+      <stop offset="100%" stop-color="#f44e00"/>
+    </linearGradient>
+  </defs>
+
+  <circle cx="34" cy="40" r="36" fill="url(#halo)"/>
+  <circle cx="34" cy="40" r="29" fill="url(#orb)"/>
+  <path d="M8.4 35.5A26 26 0 0 1 47 17.5L43 24.4A18 18 0 0 0 16.3 36.9Z" fill="url(#specular)"/>
+
+  <text x="69" y="51"
+        font-family="Arial, Helvetica, sans-serif"
+        font-weight="400" font-size="37" letter-spacing="0.8"
+        fill="url(#wordmark)">DDS</text>
+  <text x="69" y="62" textLength="80" lengthAdjust="spacing"
+        font-family="Arial, Helvetica, sans-serif"
+        font-weight="700" font-size="8.5"
+        fill="#9a9a9a">SERVICES GROUP</text>
+</svg>

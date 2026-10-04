@@ -1,0 +1,21 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+@source '../**/*.vue';
+
+@import './chrome.css';
+
+@theme {
+    --font-sans: Tahoma, Verdana, Geneva, sans-serif;
+    --font-tahoma: Tahoma, Verdana, Geneva, sans-serif;
+    --font-arial: Arial, Helvetica, sans-serif;
+    --color-portocaliu: #fe5013;
+    --color-albastru: #0bb2f7;
+    --color-submeniu: #5a5a5a;
+    --color-meniu: #656565;
+    --color-estompat: #8a8a8a;
+    --color-marginelight: #f2f2f2;
+}

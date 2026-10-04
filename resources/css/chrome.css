@@ -1,0 +1,117 @@
+/* Piese de chrome care in site-ul vechi erau GIF-uri: arcadele taburilor,
+   liniile punctate si rotatorul de bannere. */
+
+/* ---- taburi din header (fostul menu_tab_*.gif, 272x29) ----
+   Fiecare tab e un semicerc. Sunt stivuite ca niste carti: primul e deasupra,
+   iar coltul din stanga al urmatorului intra sub semicercul dinainte. */
+.tab {
+	position: relative;
+	display: flex;
+	align-items: flex-end;
+	justify-content: center;
+	width: 108px;
+	height: 30px;
+	margin-left: -14px;
+	padding-bottom: 6px;
+	padding-left: 18px;
+	padding-right: 12px;
+	border: 1px solid #d5d5d5;
+	border-bottom: none;
+	border-radius: 54px 54px 0 0;
+	background: #fff;
+	color: #fe5013;
+	font-size: 11px;
+	line-height: 1;
+	text-decoration: none;
+	white-space: nowrap;
+}
+
+nav .tab:first-child {
+	margin-left: 0;
+	padding-left: 8px;
+	padding-right: 8px;
+	z-index: 4;
+}
+
+nav .tab:nth-child(2) {
+	z-index: 3;
+}
+
+nav .tab:nth-child(3) {
+	z-index: 2;
+}
+
+nav .tab:nth-child(4) {
+	z-index: 1;
+}
+
+.tab:hover {
+	text-decoration: underline;
+}
+
+.tab-activ {
+	background: linear-gradient(to bottom, #e4e4e4 0%, #f2f2f2 45%, #fdfdfd 100%);
+}
+
+/* Pe telefon taburile se strang ca sa incapa toate patru langa sigla. */
+@media (max-width: 639px) {
+	.tab {
+		width: 86px;
+		height: 26px;
+		margin-left: -12px;
+		padding-bottom: 4px;
+		padding-left: 14px;
+		padding-right: 8px;
+		font-size: 10px;
+		border-radius: 43px 43px 0 0;
+	}
+
+	nav .tab:first-child {
+		padding-left: 6px;
+		padding-right: 6px;
+	}
+}
+
+/* Bara de cautare, fostul bara-menu.svg. Un singur gradient pe toata latimea. */
+.bara-cautare {
+	position: relative;
+	overflow: hidden;
+	border: 1px solid #e2e2e2;
+	border-radius: 8px;
+	background: linear-gradient(to bottom, #ffffff 0%, #f8f8f8 45%, #e8e8e8 100%);
+}
+
+/* ---- separatoare punctate (fostele menu_separator.gif si dashed_line.gif) ---- */
+.linie-punctata {
+	height: 1px;
+	background-image: repeating-linear-gradient(to right, #d9d9d9 0 1px, transparent 1px 2px);
+}
+
+.linie-intrerupta {
+	height: 1px;
+	background-image: repeating-linear-gradient(to right, #c9c9c9 0 2px, transparent 2px 4px);
+}
+
+/* ---- rotatorul de bannere (fostul xfade2.js + slideshow1.css) ---- */
+#rotator {
+	position: relative;
+	width: 100%;
+	aspect-ratio: 475 / 274;
+	overflow: hidden;
+	cursor: pointer;
+}
+
+#rotator img {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	opacity: 0;
+	transition: opacity 1s ease;
+}
+
+#rotator img.activ {
+	opacity: 1;
+}

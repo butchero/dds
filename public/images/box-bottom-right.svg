@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="164" height="33" viewBox="0 0 164 33">
+  <defs>
+    <linearGradient id="fold" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0%" stop-color="#f7f7f7"/>
+      <stop offset="100%" stop-color="#e4e4e4"/>
+    </linearGradient>
+    <clipPath id="boxClip">
+      <path d="M.5.5h163V25.5a7 7 0 0 1-7 7H7.5a7 7 0 0 1-7-7z"/>
+    </clipPath>
+  </defs>
+  <path d="M.5.5h163V25.5a7 7 0 0 1-7 7H7.5a7 7 0 0 1-7-7z" fill="#ffffff"/>
+  <g clip-path="url(#boxClip)">
+    <path d="M0 31C46 31 112 22 164 0v33H0z" fill="url(#fold)"/>
+  </g>
+  <path d="M.5 0v25.5a7 7 0 0 0 7 7h149a7 7 0 0 0 7-7V0" fill="none" stroke="#f0f0f0"/>
+</svg>
