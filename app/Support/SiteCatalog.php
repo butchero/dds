@@ -60,6 +60,17 @@ class SiteCatalog
         ];
     }
 
+    public static function isCurrent(string $url): bool
+    {
+        $path = '/'.ltrim(request()->path(), '/');
+
+        if ($url === '/') {
+            return $path === '/';
+        }
+
+        return $path === $url || str_starts_with($path, rtrim($url, '/').'/');
+    }
+
     public static function banners(): array
     {
         return Banner::query()->published()->get()->map(fn (Banner $banner) => [

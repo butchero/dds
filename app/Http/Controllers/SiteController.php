@@ -8,31 +8,29 @@ use App\Models\ProductCategory;
 use App\Models\Service;
 use App\Support\SiteCatalog;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
-use Inertia\Response;
+use Illuminate\View\View;
 
 class SiteController extends Controller
 {
-    public function home(): Response
+    public function home(): View
     {
-        return Inertia::render('Home', [
+        return view('home', [
             'banners' => SiteCatalog::banners(),
             'products' => Product::query()
                 ->with('category')
                 ->where('is_published', true)
                 ->latest()
                 ->limit(12)
-                ->get()
-                ->map(fn (Product $product) => $this->card($product)),
+                ->get(),
         ]);
     }
 
-    public function search(Request $request): Response
+    public function search(Request $request): View
     {
         $term = (string) $request->string('s');
         $maker = (string) $request->string('producator');
 
-        return Inertia::render('Products', [
+        return view('products', [
             'title' => $maker !== '' ? $maker : 'Cautare: '.$term,
             'products' => Product::query()
                 ->with('category')
@@ -40,32 +38,30 @@ class SiteController extends Controller
                 ->when($maker !== '', fn ($query) => $query->where('manufacturer', $maker))
                 ->when($term !== '', fn ($query) => $query->where('name', 'like', '%'.$term.'%'))
                 ->orderBy('name')
-                ->get()
-                ->map(fn (Product $product) => $this->card($product)),
+                ->get(),
         ]);
     }
 
-    public function category(ProductCategory $productCategory): Response
+    public function category(ProductCategory $productCategory): View
     {
         $ids = $productCategory->children()->pluck('id')->push($productCategory->id);
 
-        return Inertia::render('Products', [
+        return view('products', [
             'title' => $productCategory->name,
             'products' => Product::query()
                 ->with('category')
                 ->where('is_published', true)
                 ->whereIn('product_category_id', $ids)
                 ->orderBy('sort')
-                ->get()
-                ->map(fn (Product $product) => $this->card($product)),
+                ->get(),
         ]);
     }
 
-    public function product(Product $product): Response
+    public function product(Product $product): View
     {
         abort_unless($product->is_published, 404);
 
-        return Inertia::render('Content', [
+        return view('content', [
             'title' => $product->name,
             'excerpt' => $product->excerpt,
             'blocks' => [[
@@ -75,35 +71,24 @@ class SiteController extends Controller
         ]);
     }
 
-    public function service(Service $service): Response
+    public function service(Service $service): View
     {
         abort_unless($service->is_published, 404);
 
-        return Inertia::render('Content', [
+        return view('content', [
             'title' => $service->name,
             'blocks' => $service->blocksForPublic(),
         ]);
     }
 
-    public function news(News $news): Response
+    public function news(News $news): View
     {
         abort_unless($news->is_published, 404);
 
-        return Inertia::render('Content', [
+        return view('content', [
             'title' => $news->title,
             'excerpt' => $news->excerpt,
             'blocks' => $news->blocksForPublic(),
         ]);
-    }
-
-    private function card(Product $product): array
-    {
-        return [
-            'name' => $product->name,
-            'slug' => $product->slug,
-            'image_url' => $product->image_url,
-            'manufacturer' => $product->manufacturer,
-            'category_slug' => $product->category?->slug,
-        ];
     }
 }

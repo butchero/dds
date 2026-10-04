@@ -5,9 +5,9 @@
 
 DDS Services Group is a presentation site and client account for heating boilers, air conditioning, and solar panels. There is no online checkout.
 
-- The public site is Inertia and Vue in `resources/js`, with routes in `routes/web.php`. The admin is the Filament panel at `/admin`. Only users with `role = admin` can open it (`User::canAccessPanel`). Clients use `role = client`.
+- The public site and the client account are Blade views rendered by Laravel (`resources/views`), with routes in `routes/web.php`. Vue in `resources/js` only enhances the mobile menu, the banner rotator, and the cookie banner. The admin is the Filament panel at `/admin`. Only users with `role = admin` can open it (`User::canAccessPanel`). Clients use `role = client`.
 - A client owns equipment and appointments. `Equipment` sets `next_revision_on` from `last_revision_on` plus `interval_months`. `php artisan revisions:remind` emails and texts the client when that date falls inside `config('dds.remind_days')`.
-- Services and news are JSON content blocks (`App\Filament\Support\ContentBlocks`, rendered by `resources/js/Components/Blocks.vue`). Slugs come from `HasSlug`.
+- Services and news are JSON content blocks (`App\Filament\Support\ContentBlocks`, rendered by `resources/views/components/blocks.blade.php`). Slugs come from `HasSlug`.
 - Interface copy is Romanian. PHP names, methods, and comments stay English.
 - Locally the app runs in Laravel Sail (`compose.yaml`). The host has no `php` binary, so Artisan, Composer, and PHP run inside the `laravel.test` container. The site uses MySQL from `.env`, not the SQLite defaults in `.env.example`, and is served on `APP_PORT` (8088).
 - Do not add dependencies or new top-level directories without asking.
@@ -23,6 +23,10 @@ This application is a Laravel application running on PHP 8.5. Always use the API
 Before relying on a package's API, confirm its installed version:
 - PHP packages: run `composer show --direct` to list direct dependencies with versions, or `composer show <vendor/package>` for a single package.
 - JS packages: check `package.json` for the installed versions.
+
+## Skills Activation
+
+This project has domain-specific skills available in `**/skills/**`. You MUST activate the relevant skill whenever you work in that domain—don't wait until you're stuck.
 
 ## Conventions
 
@@ -105,29 +109,17 @@ Before relying on a package's API, confirm its installed version:
 # Deployment
 
 - Laravel can be deployed using [Laravel Cloud](https://cloud.laravel.com/), which is the fastest way to deploy and scale production Laravel applications.
+- Activate the `deploying-to-cloud` skill whenever deploying to Laravel Cloud, configuring Cloud environments or resources, using the Cloud CLI, or troubleshooting Cloud deployments.
 
-=== inertia-laravel/core rules ===
+=== tests rules ===
 
-# Inertia
+# Test Enforcement
 
-- Inertia creates fully client-side rendered SPAs without modern SPA complexity, leveraging existing server-side patterns.
-- Components live in `resources/js/Pages` (unless specified in `vite.config.js`). Use `Inertia::render()` for server-side routing instead of Blade views.
-- ALWAYS use `search-docs` tool for version-specific Inertia documentation and updated code examples.
-- IMPORTANT: Activate `inertia-vue-development` when working with Inertia Vue client-side patterns.
-
-# Inertia v3
-
-- Use all Inertia features from v1, v2, and v3. Check the documentation before making changes to ensure the correct approach.
-- New v3 features: standalone HTTP requests (`useHttp` hook), optimistic updates with automatic rollback, layout props (`useLayoutProps` hook), instant visits, simplified SSR via `@inertiajs/vite` plugin, custom exception handling for error pages.
-- Carried over from v2: deferred props, infinite scroll, merging props, polling, prefetching, once props, flash data.
-- When using deferred props, add an empty state with a pulsing or animated skeleton.
-- Axios has been removed. Use the built-in XHR client with interceptors, or install Axios separately if needed.
-- `Inertia::lazy()` / `LazyProp` has been removed. Use `Inertia::optional()` instead.
-- Prop types (`Inertia::optional()`, `Inertia::defer()`, `Inertia::merge()`) work inside nested arrays with dot-notation paths.
-- SSR works automatically in Vite dev mode with `@inertiajs/vite` - no separate Node.js server needed during development.
-- Event renames: `invalid` is now `httpException`, `exception` is now `networkError`.
-- `router.cancel()` replaced by `router.cancelAll()`.
-- The `future` configuration namespace has been removed - all v2 future options are now always enabled.
+- Add or update tests for behavior and logic changes when a test provides meaningful regression coverage.
+- Pure copy, styling, and layout-only changes do not require new or updated tests.
+- When test coverage applies, run the affected tests and ensure they pass.
+- Test the changed behavior and its important failure modes, but do not add tests beyond them.
+- Read the `testing-best-practices` skill before writing tests.
 
 === laravel/core rules ===
 
@@ -175,12 +167,5 @@ Before relying on a package's API, confirm its installed version:
 - Run the narrowest set of tests that covers the change. Pass a file path or `--filter=testName` to `php artisan test --compact`.
 - Rerun a test after each change to it.
 - Run `vendor/bin/phpunit` to call the test runner directly. It accepts the same file path and `--filter=testName` arguments.
-
-=== inertia-vue/core rules ===
-
-# Inertia + Vue
-
-Vue components must have a single root element.
-- IMPORTANT: Activate `inertia-vue-development` when working with Inertia Vue client-side patterns.
 
 </laravel-boost-guidelines>

@@ -3,10 +3,13 @@
 namespace App\Providers;
 
 use App\Notifications\Channels\SmsChannel;
+use App\Support\SiteCatalog;
 use Filament\Forms\Components\Field;
 use Filament\Tables\Columns\Column;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\View\View as ViewContract;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -23,6 +26,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        View::composer('components.site-layout', function (ViewContract $view): void {
+            $view->with('site', SiteCatalog::shared());
+        });
+
         Notification::extend('sms', fn () => new SmsChannel);
 
         $labels = [

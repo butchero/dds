@@ -112,6 +112,14 @@ nav .tab:nth-child(4) {
 	transition: opacity 1s ease;
 }
 
-#rotator img.activ {
+#rotator img:first-child {
+	opacity: 1;
+}
+
+#rotator.pornit img {
+	opacity: 0;
+}
+
+#rotator.pornit img.activ {
 	opacity: 1;
 }

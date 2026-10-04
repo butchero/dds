@@ -8,14 +8,13 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rules\Password;
-use Inertia\Inertia;
-use Inertia\Response;
+use Illuminate\View\View;
 
 class AccountController extends Controller
 {
-    public function login(): Response
+    public function login(): View
     {
-        return Inertia::render('Auth/Login');
+        return view('auth.login');
     }
 
     public function authenticate(Request $request): RedirectResponse
@@ -34,9 +33,9 @@ class AccountController extends Controller
         return redirect()->route('account.home');
     }
 
-    public function register(): Response
+    public function register(): View
     {
-        return Inertia::render('Auth/Register');
+        return view('auth.register');
     }
 
     public function store(Request $request): RedirectResponse
@@ -58,13 +57,13 @@ class AccountController extends Controller
         return redirect()->route('account.home');
     }
 
-    public function home(Request $request): Response
+    public function home(Request $request): View
     {
         $user = $request->user();
 
-        return Inertia::render('Account/Dashboard', [
-            'equipment' => $user->equipment()->get(['id', 'name', 'last_revision_on', 'next_revision_on']),
-            'appointments' => $user->appointments()->latest()->get(['id', 'requested_on', 'status']),
+        return view('account.home', [
+            'equipment' => $user->equipment()->get(),
+            'appointments' => $user->appointments()->latest()->get(),
         ]);
     }
 

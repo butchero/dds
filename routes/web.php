@@ -4,8 +4,8 @@ use App\Http\Controllers\AccountController;
 use App\Http\Controllers\SiteController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/politica-de-confidentialitate', fn () => inertia('Legal/Privacy'))->name('privacy');
-Route::get('/politica-de-cookies', fn () => inertia('Legal/Cookies'))->name('cookies');
+Route::view('/politica-de-confidentialitate', 'legal.privacy')->name('privacy');
+Route::view('/politica-de-cookies', 'legal.cookies')->name('cookies');
 
 Route::get('/', [SiteController::class, 'home'])->name('home');
 Route::get('/cauta', [SiteController::class, 'search'])->name('search');
