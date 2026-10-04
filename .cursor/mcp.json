@@ -1,11 +1,15 @@
 {
     "mcpServers": {
         "laravel-boost": {
-            "command": "php",
-            "args": [
-                "artisan",
-                "boost:mcp"
-            ]
+            "command": "/home/butcher/projects/dds/bin/boost-mcp",
+            "args": []
+        },
+        "vue-docs": {
+            "url": "https://mcp.vue-mcp.org/mcp"
+        },
+        "shadcn": {
+            "command": "/home/butcher/projects/dds/bin/shadcn-mcp",
+            "args": []
         }
     }
 }
