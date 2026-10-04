@@ -44,8 +44,10 @@ class NewsResource extends Resource
         return $schema
             ->components([
                 TextInput::make('title')
+                    ->label('Titlu')
                     ->required(),
-                TextInput::make('slug'),
+                TextInput::make('slug')
+                    ->label('Slug'),
                 Textarea::make('excerpt')
                     ->label('Rezumat')
                     ->columnSpanFull(),
@@ -55,8 +57,10 @@ class NewsResource extends Resource
                     ->disk('public')
                     ->directory('stiri'),
                 ContentBlocks::make(),
-                DateTimePicker::make('published_at'),
+                DateTimePicker::make('published_at')
+                    ->label('Publicat la'),
                 Toggle::make('is_published')
+                    ->label('Publicat')
                     ->required(),
             ]);
     }
@@ -67,20 +71,27 @@ class NewsResource extends Resource
             ->recordTitleAttribute('title')
             ->columns([
                 TextColumn::make('title')
+                    ->label('Titlu')
                     ->searchable(),
                 TextColumn::make('slug')
+                    ->label('Slug')
                     ->searchable(),
-                ImageColumn::make('image'),
+                ImageColumn::make('image')
+                    ->label('Poză'),
                 TextColumn::make('published_at')
+                    ->label('Publicat la')
                     ->dateTime()
                     ->sortable(),
                 IconColumn::make('is_published')
+                    ->label('Publicat')
                     ->boolean(),
                 TextColumn::make('created_at')
+                    ->label('Creat la')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
+                    ->label('Actualizat la')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

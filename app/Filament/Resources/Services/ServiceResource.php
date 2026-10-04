@@ -48,11 +48,14 @@ class ServiceResource extends Resource
                     ->label('Nume')
                     ->required()
                     ->live(onBlur: true),
-                TextInput::make('slug'),
+                TextInput::make('slug')
+                    ->label('Slug'),
                 ContentBlocks::make(),
                 Toggle::make('is_published')
+                    ->label('Publicat')
                     ->required(),
                 TextInput::make('sort')
+                    ->label('Ordine')
                     ->required()
                     ->numeric()
                     ->default(0),
@@ -64,23 +67,29 @@ class ServiceResource extends Resource
         return $table
             ->recordTitleAttribute('name')
             ->columns([
-                TextColumn::make('service_category_id')
-                    ->numeric()
-                    ->sortable(),
+                TextColumn::make('category.name')
+                    ->label('Categorie')
+                    ->searchable(),
                 TextColumn::make('name')
+                    ->label('Nume')
                     ->searchable(),
                 TextColumn::make('slug')
+                    ->label('Slug')
                     ->searchable(),
                 IconColumn::make('is_published')
+                    ->label('Publicat')
                     ->boolean(),
                 TextColumn::make('sort')
+                    ->label('Ordine')
                     ->numeric()
                     ->sortable(),
                 TextColumn::make('created_at')
+                    ->label('Creat la')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
+                    ->label('Actualizat la')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

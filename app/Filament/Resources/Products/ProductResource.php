@@ -48,20 +48,26 @@ class ProductResource extends Resource
                 TextInput::make('name')
                     ->label('Nume')
                     ->required(),
-                TextInput::make('slug'),
+                TextInput::make('slug')
+                    ->label('Slug'),
                 Textarea::make('excerpt')
+                    ->label('Rezumat')
                     ->columnSpanFull(),
                 Textarea::make('description')
+                    ->label('Descriere')
                     ->columnSpanFull(),
                 FileUpload::make('image')
                     ->label('Poză')
                     ->image()
                     ->disk('public')
                     ->directory('produse'),
-                TextInput::make('manufacturer'),
+                TextInput::make('manufacturer')
+                    ->label('Producător'),
                 Toggle::make('is_published')
+                    ->label('Publicat')
                     ->required(),
                 TextInput::make('sort')
+                    ->label('Ordine')
                     ->required()
                     ->numeric()
                     ->default(0),
@@ -73,26 +79,34 @@ class ProductResource extends Resource
         return $table
             ->recordTitleAttribute('name')
             ->columns([
-                TextColumn::make('product_category_id')
-                    ->numeric()
-                    ->sortable(),
+                TextColumn::make('category.name')
+                    ->label('Categorie')
+                    ->searchable(),
                 TextColumn::make('name')
+                    ->label('Nume')
                     ->searchable(),
                 TextColumn::make('slug')
+                    ->label('Slug')
                     ->searchable(),
-                ImageColumn::make('image'),
+                ImageColumn::make('image')
+                    ->label('Poză'),
                 TextColumn::make('manufacturer')
+                    ->label('Producător')
                     ->searchable(),
                 IconColumn::make('is_published')
+                    ->label('Publicat')
                     ->boolean(),
                 TextColumn::make('sort')
+                    ->label('Ordine')
                     ->numeric()
                     ->sortable(),
                 TextColumn::make('created_at')
+                    ->label('Creat la')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
+                    ->label('Actualizat la')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

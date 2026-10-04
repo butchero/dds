@@ -22,7 +22,7 @@ class ClientImporter extends Importer
                 ->requiredMapping()
                 ->rules(['required', 'string', 'max:255']),
             ImportColumn::make('email')
-                ->label('Email')
+                ->label('E-mail')
                 ->requiredMapping()
                 ->rules(['required', 'email', 'max:255']),
             ImportColumn::make('phone')

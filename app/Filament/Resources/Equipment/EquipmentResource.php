@@ -26,6 +26,10 @@ class EquipmentResource extends Resource
 
     protected static ?string $navigationLabel = 'Echipamente';
 
+    protected static ?string $modelLabel = 'echipament';
+
+    protected static ?string $pluralModelLabel = 'Echipamente';
+
     protected static string|\UnitEnum|null $navigationGroup = 'Clienți';
 
     protected static ?string $recordTitleAttribute = 'name';
@@ -35,18 +39,25 @@ class EquipmentResource extends Resource
         return $schema
             ->components([
                 Select::make('user_id')
+                    ->label('Client')
                     ->relationship('user', 'name')
                     ->required(),
                 TextInput::make('name')
+                    ->label('Nume')
                     ->required(),
-                TextInput::make('type'),
-                DatePicker::make('last_revision_on'),
+                TextInput::make('type')
+                    ->label('Tip'),
+                DatePicker::make('last_revision_on')
+                    ->label('Ultima revizie'),
                 TextInput::make('interval_months')
+                    ->label('Interval (luni)')
                     ->required()
                     ->numeric()
                     ->default(24),
-                DatePicker::make('next_revision_on'),
-                DatePicker::make('notified_on'),
+                DatePicker::make('next_revision_on')
+                    ->label('Următoarea revizie'),
+                DatePicker::make('notified_on')
+                    ->label('Notificat la'),
             ]);
     }
 
@@ -59,26 +70,34 @@ class EquipmentResource extends Resource
                     ->label('Client')
                     ->searchable(),
                 TextColumn::make('name')
+                    ->label('Nume')
                     ->searchable(),
                 TextColumn::make('type')
+                    ->label('Tip')
                     ->searchable(),
                 TextColumn::make('last_revision_on')
+                    ->label('Ultima revizie')
                     ->date()
                     ->sortable(),
                 TextColumn::make('interval_months')
+                    ->label('Interval (luni)')
                     ->numeric()
                     ->sortable(),
                 TextColumn::make('next_revision_on')
+                    ->label('Următoarea revizie')
                     ->date()
                     ->sortable(),
                 TextColumn::make('notified_on')
+                    ->label('Notificat la')
                     ->date()
                     ->sortable(),
                 TextColumn::make('created_at')
+                    ->label('Creat la')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
+                    ->label('Actualizat la')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

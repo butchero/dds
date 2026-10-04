@@ -26,6 +26,12 @@ class ServiceCategoryResource extends Resource
 
     protected static ?string $navigationLabel = 'Categorii servicii';
 
+    protected static ?string $modelLabel = 'Categorie de serviciu';
+
+    protected static ?string $pluralModelLabel = 'Categorii servicii';
+
+    protected static bool $hasTitleCaseModelLabel = false;
+
     protected static string|\UnitEnum|null $navigationGroup = 'Servicii';
 
     protected static ?string $recordTitleAttribute = 'name';
@@ -35,13 +41,17 @@ class ServiceCategoryResource extends Resource
         return $schema
             ->components([
                 TextInput::make('name')
+                    ->label('Nume')
                     ->required(),
-                TextInput::make('slug'),
+                TextInput::make('slug')
+                    ->label('Slug'),
                 TextInput::make('sort')
+                    ->label('Ordine')
                     ->required()
                     ->numeric()
                     ->default(0),
                 Toggle::make('show_in_sidebar')
+                    ->label('În meniul lateral')
                     ->required(),
             ]);
     }
@@ -52,19 +62,25 @@ class ServiceCategoryResource extends Resource
             ->recordTitleAttribute('name')
             ->columns([
                 TextColumn::make('name')
+                    ->label('Nume')
                     ->searchable(),
                 TextColumn::make('slug')
+                    ->label('Slug')
                     ->searchable(),
                 TextColumn::make('sort')
+                    ->label('Ordine')
                     ->numeric()
                     ->sortable(),
                 IconColumn::make('show_in_sidebar')
+                    ->label('În meniul lateral')
                     ->boolean(),
                 TextColumn::make('created_at')
+                    ->label('Creat la')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
+                    ->label('Actualizat la')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

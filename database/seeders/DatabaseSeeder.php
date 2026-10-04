@@ -20,9 +20,13 @@ class DatabaseSeeder extends Seeder
     {
         SiteSetting::query()->updateOrCreate([], ['menu_position' => 'top']);
 
+        User::query()->where('email', 'admin@dds.local')->update([
+            'email' => 'vali.ciuca@gmail.com',
+        ]);
+
         User::query()->updateOrCreate(
-            ['email' => 'admin@dds.local'],
-            ['name' => 'Admin', 'password' => 'dds-admin', 'role' => 'admin', 'phone' => '0241555000'],
+            ['email' => 'vali.ciuca@gmail.com'],
+            ['name' => 'Admin', 'password' => 'parola', 'role' => 'admin', 'phone' => '0241555000'],
         );
 
         $clients = [

@@ -24,6 +24,12 @@ class MenuItemResource extends Resource
 
     protected static ?string $navigationLabel = 'Intrări meniu';
 
+    protected static ?string $modelLabel = 'Intrare de meniu';
+
+    protected static ?string $pluralModelLabel = 'Intrări meniu';
+
+    protected static bool $hasTitleCaseModelLabel = false;
+
     protected static string|\UnitEnum|null $navigationGroup = 'Conținut';
 
     protected static ?string $recordTitleAttribute = 'label';
@@ -33,11 +39,14 @@ class MenuItemResource extends Resource
         return $schema
             ->components([
                 TextInput::make('label')
+                    ->label('Etichetă')
                     ->required(),
                 TextInput::make('url')
+                    ->label('Adresă')
                     ->url()
                     ->required(),
                 TextInput::make('sort')
+                    ->label('Ordine')
                     ->required()
                     ->numeric()
                     ->default(0),
@@ -50,17 +59,22 @@ class MenuItemResource extends Resource
             ->recordTitleAttribute('label')
             ->columns([
                 TextColumn::make('label')
+                    ->label('Etichetă')
                     ->searchable(),
                 TextColumn::make('url')
+                    ->label('Adresă')
                     ->searchable(),
                 TextColumn::make('sort')
+                    ->label('Ordine')
                     ->numeric()
                     ->sortable(),
                 TextColumn::make('created_at')
+                    ->label('Creat la')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
+                    ->label('Actualizat la')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

@@ -25,6 +25,12 @@ class ProductCategoryResource extends Resource
 
     protected static ?string $navigationLabel = 'Categorii produse';
 
+    protected static ?string $modelLabel = 'Categorie de produs';
+
+    protected static ?string $pluralModelLabel = 'Categorii produse';
+
+    protected static bool $hasTitleCaseModelLabel = false;
+
     protected static string|\UnitEnum|null $navigationGroup = 'Catalog';
 
     protected static ?string $recordTitleAttribute = 'name';
@@ -34,11 +40,15 @@ class ProductCategoryResource extends Resource
         return $schema
             ->components([
                 Select::make('parent_id')
+                    ->label('Categorie părinte')
                     ->relationship('parent', 'name'),
                 TextInput::make('name')
+                    ->label('Nume')
                     ->required(),
-                TextInput::make('slug'),
+                TextInput::make('slug')
+                    ->label('Slug'),
                 TextInput::make('sort')
+                    ->label('Ordine')
                     ->required()
                     ->numeric()
                     ->default(0),
@@ -54,17 +64,22 @@ class ProductCategoryResource extends Resource
                     ->label('Categorie părinte')
                     ->searchable(),
                 TextColumn::make('name')
+                    ->label('Nume')
                     ->searchable(),
                 TextColumn::make('slug')
+                    ->label('Slug')
                     ->searchable(),
                 TextColumn::make('sort')
+                    ->label('Ordine')
                     ->numeric()
                     ->sortable(),
                 TextColumn::make('created_at')
+                    ->label('Creat la')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
+                    ->label('Actualizat la')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

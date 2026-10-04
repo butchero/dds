@@ -38,10 +38,7 @@ class SiteSettingResource extends Resource
             ->components([
                 Select::make('menu_position')
                     ->label('Poziție pe desktop')
-                    ->options([
-                        'top' => 'Sus, lângă siglă',
-                        'left' => 'Stânga, deasupra categoriilor',
-                    ])
+                    ->options(self::menuPositions())
                     ->required()
                     ->default('top'),
             ]);
@@ -53,12 +50,16 @@ class SiteSettingResource extends Resource
             ->recordTitleAttribute('menu_position')
             ->columns([
                 TextColumn::make('menu_position')
+                    ->label('Poziție pe desktop')
+                    ->formatStateUsing(fn (string $state): string => self::menuPositions()[$state] ?? $state)
                     ->searchable(),
                 TextColumn::make('created_at')
+                    ->label('Creat la')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
+                    ->label('Actualizat la')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -75,6 +76,17 @@ class SiteSettingResource extends Resource
                     DeleteBulkAction::make(),
                 ]),
             ]);
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public static function menuPositions(): array
+    {
+        return [
+            'top' => 'Sus, lângă siglă',
+            'left' => 'Stânga, deasupra categoriilor',
+        ];
     }
 
     public static function getPages(): array

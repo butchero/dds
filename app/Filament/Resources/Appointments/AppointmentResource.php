@@ -11,7 +11,6 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -27,6 +26,10 @@ class AppointmentResource extends Resource
 
     protected static ?string $navigationLabel = 'Programări';
 
+    protected static ?string $modelLabel = 'programare';
+
+    protected static ?string $pluralModelLabel = 'Programări';
+
     protected static string|\UnitEnum|null $navigationGroup = 'Clienți';
 
     protected static ?string $recordTitleAttribute = 'status';
@@ -36,20 +39,20 @@ class AppointmentResource extends Resource
         return $schema
             ->components([
                 Select::make('user_id')
+                    ->label('Client')
                     ->relationship('user', 'name')
                     ->required(),
                 Select::make('equipment_id')
+                    ->label('Echipament')
                     ->relationship('equipment', 'name'),
-                DatePicker::make('requested_on'),
+                DatePicker::make('requested_on')
+                    ->label('Data solicitată'),
                 Textarea::make('note')
+                    ->label('Notă')
                     ->columnSpanFull(),
                 Select::make('status')
                     ->label('Stare')
-                    ->options([
-                        'requested' => 'Cerută',
-                        'confirmed' => 'Confirmată',
-                        'done' => 'Efectuată',
-                    ])
+                    ->options(self::statuses())
                     ->required()
                     ->default('requested'),
             ]);
@@ -67,15 +70,20 @@ class AppointmentResource extends Resource
                     ->label('Echipament')
                     ->searchable(),
                 TextColumn::make('requested_on')
+                    ->label('Data solicitată')
                     ->date()
                     ->sortable(),
                 TextColumn::make('status')
+                    ->label('Stare')
+                    ->formatStateUsing(fn (string $state): string => self::statuses()[$state] ?? $state)
                     ->searchable(),
                 TextColumn::make('created_at')
+                    ->label('Creat la')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
+                    ->label('Actualizat la')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -92,6 +100,18 @@ class AppointmentResource extends Resource
                     DeleteBulkAction::make(),
                 ]),
             ]);
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public static function statuses(): array
+    {
+        return [
+            'requested' => 'Cerută',
+            'confirmed' => 'Confirmată',
+            'done' => 'Efectuată',
+        ];
     }
 
     public static function getPages(): array

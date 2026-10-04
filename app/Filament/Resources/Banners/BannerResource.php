@@ -41,6 +41,7 @@ class BannerResource extends Resource
         return $schema
             ->components([
                 TextInput::make('title')
+                    ->label('Titlu')
                     ->required(),
                 FileUpload::make('image')
                     ->label('Imagine')
@@ -48,12 +49,15 @@ class BannerResource extends Resource
                     ->disk('public')
                     ->directory('banners')
                     ->required(),
-                TextInput::make('link'),
+                TextInput::make('link')
+                    ->label('Adresă'),
                 TextInput::make('sort')
+                    ->label('Ordine')
                     ->required()
                     ->numeric()
                     ->default(0),
                 Toggle::make('is_published')
+                    ->label('Publicat')
                     ->required(),
             ]);
     }
@@ -64,20 +68,28 @@ class BannerResource extends Resource
             ->recordTitleAttribute('title')
             ->columns([
                 TextColumn::make('title')
+                    ->label('Titlu')
                     ->searchable(),
-                ImageColumn::make('image')->disk('public'),
+                ImageColumn::make('image')
+                    ->label('Imagine')
+                    ->disk('public'),
                 TextColumn::make('link')
+                    ->label('Adresă')
                     ->searchable(),
                 TextColumn::make('sort')
+                    ->label('Ordine')
                     ->numeric()
                     ->sortable(),
                 IconColumn::make('is_published')
+                    ->label('Publicat')
                     ->boolean(),
                 TextColumn::make('created_at')
+                    ->label('Creat la')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
+                    ->label('Actualizat la')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
