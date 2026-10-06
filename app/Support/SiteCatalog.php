@@ -14,10 +14,8 @@ class SiteCatalog
 {
     public static function shared(): array
     {
-        $settings = SiteSetting::current();
-
         return [
-            'menuPosition' => $settings->menu_position,
+            'menuPosition' => SiteSetting::get('menu_position'),
             'menu' => MenuItem::query()->orderBy('sort')->get(['label', 'url']),
             'productCategories' => ProductCategory::query()
                 ->whereNull('parent_id')

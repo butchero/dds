@@ -5,9 +5,6 @@ namespace App\Filament\Resources\SiteSettings;
 use App\Filament\Resources\SiteSettings\Pages\ManageSiteSettings;
 use App\Models\SiteSetting;
 use BackedEnum;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Select;
 use Filament\Resources\Resource;
@@ -15,6 +12,7 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class SiteSettingResource extends Resource
 {
@@ -30,15 +28,17 @@ class SiteSettingResource extends Resource
 
     protected static string|\UnitEnum|null $navigationGroup = 'Conținut';
 
-    protected static ?string $recordTitleAttribute = 'menu_position';
+    protected static ?string $recordTitleAttribute = 'value';
 
     public static function form(Schema $schema): Schema
     {
         return $schema
             ->components([
-                Select::make('menu_position')
+                Select::make('value')
                     ->label('Poziție pe desktop')
                     ->options(self::menuPositions())
+                    ->helperText(fn (?SiteSetting $record): string => $record?->description
+                        ?: SiteSetting::definitions()['menu_position']['description'])
                     ->required()
                     ->default('top'),
             ]);
@@ -47,9 +47,9 @@ class SiteSettingResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->recordTitleAttribute('menu_position')
+            ->recordTitleAttribute('value')
             ->columns([
-                TextColumn::make('menu_position')
+                TextColumn::make('value')
                     ->label('Poziție pe desktop')
                     ->formatStateUsing(fn (string $state): string => self::menuPositions()[$state] ?? $state)
                     ->searchable(),
@@ -69,13 +69,15 @@ class SiteSettingResource extends Resource
             ])
             ->recordActions([
                 EditAction::make(),
-                DeleteAction::make(),
-            ])
-            ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                ]),
             ]);
+    }
+
+    /**
+     * @return Builder<SiteSetting>
+     */
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()->where('name', 'menu_position');
     }
 
     /**

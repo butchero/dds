@@ -6,8 +6,6 @@ use App\Models\Appointment;
 use App\Models\Banner;
 use App\Models\MenuItem;
 use App\Models\News;
-use App\Models\Product;
-use App\Models\ProductCategory;
 use App\Models\Service;
 use App\Models\ServiceCategory;
 use App\Models\SiteSetting;
@@ -18,7 +16,7 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        SiteSetting::query()->updateOrCreate([], ['menu_position' => 'top']);
+        SiteSetting::ensureDefaults();
 
         User::query()->where('email', 'admin@dds.local')->update([
             'email' => 'vali.ciuca@gmail.com',
@@ -74,52 +72,6 @@ class DatabaseSeeder extends Seeder
             ['user_id' => $users[2]->id, 'equipment_id' => $savedEquipment[3]->id],
             ['requested_on' => now()->subDays(15)->toDateString(), 'note' => 'Revizie efectuata.', 'status' => 'done'],
         );
-
-        $centrale = ProductCategory::query()->updateOrCreate(
-            ['slug' => 'centrale-termice'],
-            ['name' => 'Centrale termice', 'sort' => 1, 'parent_id' => null],
-        );
-        $condensatie = ProductCategory::query()->updateOrCreate(
-            ['slug' => 'centrale-in-condensatie'],
-            ['name' => 'Centrale in condensatie', 'sort' => 1, 'parent_id' => $centrale->id],
-        );
-        $murale = ProductCategory::query()->updateOrCreate(
-            ['slug' => 'centrale-murale'],
-            ['name' => 'Centrale murale', 'sort' => 2, 'parent_id' => $centrale->id],
-        );
-        $ac = ProductCategory::query()->updateOrCreate(
-            ['slug' => 'aparate-aer-conditionat'],
-            ['name' => 'Aparate aer conditionat', 'sort' => 2, 'parent_id' => null],
-        );
-        $solare = ProductCategory::query()->updateOrCreate(
-            ['slug' => 'panouri-solare'],
-            ['name' => 'Panouri solare', 'sort' => 3, 'parent_id' => null],
-        );
-
-        $products = [
-            ['Panou solar Kairos Thermo HF', 'panou-solar-kairos', $solare->id, 'ARISTON', '235.jpg', 'Panou solar pentru apa calda menajera.'],
-            ['Centrala Clas Evo System', 'centrala-clas-evo-system', $murale->id, 'ARISTON', '234.jpg', 'Centrala murala cu tiraj fortat.'],
-            ['Centrala Clas Evo', 'centrala-clas-evo', $murale->id, 'ARISTON', '233.jpg', 'Centrala murala pentru apartament.'],
-            ['Genus Premium Evo System', 'genus-premium-evo-system', $condensatie->id, 'ARISTON', '232.jpg', 'Centrala in condensatie, sistem.'],
-            ['Boiler Logalux SU', 'boiler-logalux-su', $centrale->id, 'BUDERUS', '228.jpg', 'Boiler cu o serpentina.'],
-            ['Centrala Logano SK 625', 'centrala-logano-sk-625', $centrale->id, 'BUDERUS', '224.jpg', 'Centrala de pardoseala.'],
-        ];
-
-        foreach ($products as $index => [$name, $slug, $categoryId, $manufacturer, $image, $excerpt]) {
-            Product::query()->updateOrCreate(
-                ['slug' => $slug],
-                [
-                    'name' => $name,
-                    'product_category_id' => $categoryId,
-                    'manufacturer' => $manufacturer,
-                    'image' => "produse/{$image}",
-                    'excerpt' => $excerpt,
-                    'description' => $excerpt.' Produs de prezentare, fara comanda online.',
-                    'is_published' => true,
-                    'sort' => $index + 1,
-                ],
-            );
-        }
 
         $revizii = ServiceCategory::query()->updateOrCreate(
             ['slug' => 'revizii'],

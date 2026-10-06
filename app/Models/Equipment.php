@@ -11,8 +11,8 @@ class Equipment extends Model
     protected $table = 'equipment';
 
     protected $fillable = [
-        'user_id', 'name', 'type', 'last_revision_on', 'interval_months',
-        'next_revision_on', 'notified_on',
+        'user_id', 'address_id', 'name', 'type', 'last_revision_on', 'interval_months',
+        'notify_email', 'notify_sms', 'next_revision_on', 'notified_on',
     ];
 
     protected function casts(): array
@@ -21,6 +21,8 @@ class Equipment extends Model
             'last_revision_on' => 'date',
             'next_revision_on' => 'date',
             'notified_on' => 'date',
+            'notify_email' => 'boolean',
+            'notify_sms' => 'boolean',
         ];
     }
 
@@ -36,6 +38,11 @@ class Equipment extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function address(): BelongsTo
+    {
+        return $this->belongsTo(Address::class);
     }
 
     public function appointments(): HasMany

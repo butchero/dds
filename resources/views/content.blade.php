@@ -1,7 +1,7 @@
-<x-site-layout :title="$title">
-    <h1 class="mb-[5px] font-arial text-[13px] text-portocaliu">{{ $title }}</h1>
+<x-site-layout :title="$title" :breadcrumbs="$breadcrumbs">
+    <h1 class="mb-2 text-lg font-medium tracking-tight text-brand">{{ $title }}</h1>
     @if (! empty($excerpt))
-        <p class="leading-[15px]">{{ $excerpt }}</p>
+        <p>{{ $excerpt }}</p>
     @endif
     <x-blocks :blocks="$blocks" />
 </x-site-layout>

@@ -1,21 +1,32 @@
-<x-site-layout title="Cont nou">
-    <h1 class="mb-[5px] font-arial text-[13px] text-portocaliu">Cont nou</h1>
-    <form class="max-w-sm space-y-2" method="post" action="{{ route('register') }}">
+<x-site-layout :title="__('Cont nou')" :breadcrumbs="\App\Support\Breadcrumbs::forPage(__('Cont nou'))">
+    <h1 class="mb-2 text-lg font-medium tracking-tight text-brand">{{ __('Cont nou') }}</h1>
+    <form class="max-w-sm space-y-3" method="post" action="{{ route('register') }}">
         @csrf
-        <input type="text" name="name" value="{{ old('name') }}" required placeholder="Nume" class="block w-full border border-[#a4a4a4] px-2 py-1">
+        <x-ui.input type="text" name="name" value="{{ old('name') }}" required :placeholder="__('Nume')" />
         @error('name')
-            <p class="text-portocaliu">{{ $message }}</p>
+            <p class="text-sm text-brand">{{ $message }}</p>
         @enderror
-        <input type="email" name="email" value="{{ old('email') }}" required placeholder="Email" class="block w-full border border-[#a4a4a4] px-2 py-1">
+        <x-ui.input type="email" name="email" value="{{ old('email') }}" required :placeholder="__('Email')" />
         @error('email')
-            <p class="text-portocaliu">{{ $message }}</p>
+            <p class="text-sm text-brand">{{ $message }}</p>
         @enderror
-        <input type="text" name="phone" value="{{ old('phone') }}" placeholder="Telefon" class="block w-full border border-[#a4a4a4] px-2 py-1">
-        <input type="password" name="password" required placeholder="Parola" class="block w-full border border-[#a4a4a4] px-2 py-1">
+        <x-ui.input type="text" name="phone" value="{{ old('phone') }}" :placeholder="__('Telefon')" />
+        @error('phone')
+            <p class="text-sm text-brand">{{ $message }}</p>
+        @enderror
+        <x-ui.input type="password" name="password" required :placeholder="__('Parola')" />
         @error('password')
-            <p class="text-portocaliu">{{ $message }}</p>
+            <p class="text-sm text-brand">{{ $message }}</p>
         @enderror
-        <input type="password" name="password_confirmation" required placeholder="Confirma parola" class="block w-full border border-[#a4a4a4] px-2 py-1">
-        <button class="bg-portocaliu px-3 py-1 text-white" type="submit">Creeaza cont</button>
+        <x-ui.input type="password" name="password_confirmation" required :placeholder="__('Confirma parola')" />
+        <button class="inline-flex h-9 items-center justify-center rounded-lg bg-brand px-3 text-sm font-medium text-white transition-all outline-none hover:bg-brand/90 focus-visible:ring-3 focus-visible:ring-ring/50" type="submit">{{ __('Creeaza cont') }}</button>
     </form>
+    <p class="mt-4 space-x-3 text-sm">
+        <a class="text-link" href="{{ route('login') }}">{{ __('Autentificare') }}</a>
+        <a class="text-link" href="{{ route('claim') }}">{{ __('Am deja număr la DDS') }}</a>
+    </p>
+    <div class="mt-4 flex flex-wrap gap-3">
+        <a class="inline-flex h-9 items-center justify-center rounded-lg border border-input bg-white px-3 text-sm font-medium text-brand" href="{{ route('social.redirect', 'google') }}">{{ __('Continuă cu Google') }}</a>
+        <a class="inline-flex h-9 items-center justify-center rounded-lg border border-input bg-white px-3 text-sm font-medium text-brand" href="{{ route('social.redirect', 'facebook') }}">{{ __('Continuă cu Facebook') }}</a>
+    </div>
 </x-site-layout>

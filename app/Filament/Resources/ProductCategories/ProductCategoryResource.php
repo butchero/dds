@@ -9,13 +9,16 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class ProductCategoryResource extends Resource
 {
@@ -47,11 +50,22 @@ class ProductCategoryResource extends Resource
                     ->required(),
                 TextInput::make('slug')
                     ->label('Slug'),
+                Textarea::make('description')
+                    ->label('Descriere')
+                    ->columnSpanFull(),
                 TextInput::make('sort')
                     ->label('Ordine')
                     ->required()
                     ->numeric()
                     ->default(0),
+                CheckboxList::make('attributes')
+                    ->label('Caracteristici')
+                    ->relationship(
+                        titleAttribute: 'name',
+                        modifyQueryUsing: fn (Builder $query): Builder => $query->orderBy('sort')->orderBy('name'),
+                    )
+                    ->columns(2)
+                    ->columnSpanFull(),
             ]);
     }
 

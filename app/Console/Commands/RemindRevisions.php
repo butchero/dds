@@ -29,7 +29,13 @@ class RemindRevisions extends Command
                     return;
                 }
 
-                $equipment->user->notify(new RevisionDueNotification($equipment));
+                $notification = new RevisionDueNotification($equipment);
+
+                if ($notification->via($equipment->user) === []) {
+                    return;
+                }
+
+                $equipment->user->notify($notification);
                 $equipment->forceFill(['notified_on' => $equipment->next_revision_on])->saveQuietly();
             });
 

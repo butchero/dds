@@ -12,15 +12,23 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-    --font-sans: Tahoma, Verdana, Geneva, sans-serif;
-    --font-tahoma: Tahoma, Verdana, Geneva, sans-serif;
-    --font-arial: Arial, Helvetica, sans-serif;
-    --color-portocaliu: #fe5013;
-    --color-albastru: #0bb2f7;
-    --color-submeniu: #5a5a5a;
-    --color-meniu: #656565;
-    --color-estompat: #8a8a8a;
-    --color-marginelight: #f2f2f2;
+    --font-sans: "Instrument Sans", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    --animate-marquee: marquee 28s linear infinite;
+
+    @keyframes marquee {
+        from {
+            transform: translateX(0);
+        }
+        to {
+            transform: translateX(-50%);
+        }
+    }
+    --color-brand: #fe5013;
+    --color-link: #0bb2f7;
+    --color-submenu: #5a5a5a;
+    --color-menu: #656565;
+    --color-faded: #8a8a8a;
+    --color-hairline: #f2f2f2;
 }
 
 @theme inline {

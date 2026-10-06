@@ -1,35 +1,26 @@
-<x-site-layout title="Contul meu">
-    <h1 class="mb-[5px] font-arial text-[13px] text-portocaliu">Contul meu</h1>
-    @if (session('status'))
-        <p class="text-albastru">{{ session('status') }}</p>
-    @endif
-    <h2 class="mt-3 font-arial text-[13px] text-portocaliu">Echipamente</h2>
-    <ul>
-        @foreach ($equipment as $item)
-            <li>{{ $item->name }} — ultima revizie {{ $item->last_revision_on?->toDateString() ?? 'necunoscuta' }}, urmatoarea {{ $item->next_revision_on?->toDateString() ?? 'neprogramata' }}</li>
-        @endforeach
-    </ul>
-    <h2 class="mt-3 font-arial text-[13px] text-portocaliu">Programeaza o revizie</h2>
-    <form class="max-w-sm space-y-2" method="post" action="{{ route('account.appointment') }}">
+@php
+    $button = 'inline-flex h-9 items-center justify-center rounded-lg bg-brand px-3 text-sm font-medium text-white';
+@endphp
+
+<x-account-page :title="__('Datele mele')" current="profile">
+    <form class="max-w-sm space-y-3" method="post" action="{{ route('account.profile') }}">
         @csrf
-        <select name="equipment_id" class="block w-full border border-[#a4a4a4] px-2 py-1">
-            <option value="">Alege echipamentul</option>
-            @foreach ($equipment as $item)
-                <option value="{{ $item->id }}" @selected(old('equipment_id') == $item->id)>{{ $item->name }}</option>
-            @endforeach
-        </select>
-        <input type="date" name="requested_on" value="{{ old('requested_on') }}" class="block w-full border border-[#a4a4a4] px-2 py-1">
-        <textarea name="note" placeholder="Observatii" class="block w-full border border-[#a4a4a4] px-2 py-1">{{ old('note') }}</textarea>
-        <button class="bg-portocaliu px-3 py-1 text-white" type="submit">Trimite cererea</button>
+        <x-ui.input type="text" name="name" value="{{ old('name', $user->name) }}" required :placeholder="__('Nume')" />
+        <x-ui.input type="email" name="email" value="{{ old('email', $user->email) }}" required :placeholder="__('Email')" />
+        <button class="{{ $button }}" type="submit">{{ __('Salvează datele') }}</button>
     </form>
-    <h2 class="mt-3 font-arial text-[13px] text-portocaliu">Cereri</h2>
-    <ul>
-        @foreach ($appointments as $item)
-            <li>{{ $item->requested_on?->toDateString() }} — {{ $item->status }}</li>
-        @endforeach
-    </ul>
-    <form method="post" action="{{ route('logout') }}">
+    <form class="mt-4 max-w-sm space-y-3" method="post" action="{{ route('account.phone') }}">
         @csrf
-        <button class="mt-4 underline" type="submit">Iesire</button>
+        <x-ui.input type="text" name="phone" value="{{ old('phone', $user->phone) }}" required :placeholder="__('Telefon')" />
+        <button class="{{ $button }}" type="submit">{{ __('Confirmă telefonul') }}</button>
     </form>
-</x-site-layout>
+    <form class="mt-4 max-w-sm space-y-3" method="post" action="{{ route('account.password') }}">
+        @csrf
+        @if (filled($user->password))
+            <x-ui.input type="password" name="current_password" required :placeholder="__('Parola actuală')" />
+        @endif
+        <x-ui.input type="password" name="password" required :placeholder="__('Parolă nouă')" />
+        <x-ui.input type="password" name="password_confirmation" required :placeholder="__('Confirma parola')" />
+        <button class="{{ $button }}" type="submit">{{ __('Schimbă parola') }}</button>
+    </form>
+</x-account-page>

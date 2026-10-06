@@ -3,12 +3,12 @@
 namespace App\Filament\Imports;
 
 use App\Models\User;
+use App\Support\PhoneNumber;
+use Filament\Actions\Imports\Exceptions\RowImportFailedException;
 use Filament\Actions\Imports\ImportColumn;
 use Filament\Actions\Imports\Importer;
 use Filament\Actions\Imports\Models\Import;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Number;
-use Illuminate\Support\Str;
 
 class ClientImporter extends Importer
 {
@@ -21,55 +21,67 @@ class ClientImporter extends Importer
                 ->label('Nume')
                 ->requiredMapping()
                 ->rules(['required', 'string', 'max:255']),
-            ImportColumn::make('email')
-                ->label('E-mail')
-                ->requiredMapping()
-                ->rules(['required', 'email', 'max:255']),
             ImportColumn::make('phone')
                 ->label('Telefon')
-                ->rules(['nullable', 'string', 'max:30']),
-            ImportColumn::make('equipment_name')
-                ->label('Echipament')
-                ->fillRecordUsing(fn () => null)
-                ->rules(['nullable', 'string', 'max:255']),
-            ImportColumn::make('last_revision_on')
-                ->label('Data ultimei revizii')
-                ->fillRecordUsing(fn () => null)
-                ->rules(['nullable', 'date']),
-            ImportColumn::make('interval_months')
-                ->label('Interval luni')
-                ->fillRecordUsing(fn () => null)
-                ->numeric()
-                ->rules(['nullable', 'integer', 'min:1']),
+                ->requiredMapping()
+                ->castStateUsing(function (mixed $state): mixed {
+                    if (blank($state)) {
+                        return $state;
+                    }
+
+                    return PhoneNumber::normalize((string) $state) ?? $state;
+                })
+                ->rules(['required', 'regex:/^07\d{8}$/']),
+            ImportColumn::make('email')
+                ->label('E-mail')
+                ->ignoreBlankState()
+                ->rules(['nullable', 'email', 'max:255']),
         ];
     }
 
     public function resolveRecord(): User
     {
-        return User::firstOrNew([
-            'email' => $this->data['email'],
+        $phone = PhoneNumber::normalize((string) ($this->data['phone'] ?? ''));
+
+        if ($phone === null) {
+            return new User;
+        }
+
+        return User::query()->firstOrNew([
+            'phone' => $phone,
         ]);
+    }
+
+    public function fillRecord(): void
+    {
+        if ($this->record->exists && ! $this->record->isUnclaimed()) {
+            return;
+        }
+
+        parent::fillRecord();
     }
 
     protected function beforeCreate(): void
     {
         $this->record->role = 'client';
-        $this->record->password = Hash::make(Str::password(12));
     }
 
-    protected function afterSave(): void
+    protected function beforeSave(): void
     {
-        if (blank($this->data['equipment_name'] ?? null)) {
+        $email = $this->data['email'] ?? null;
+
+        if (blank($email) || ($this->record->exists && ! $this->record->isUnclaimed())) {
             return;
         }
 
-        $this->record->equipment()->updateOrCreate(
-            ['name' => $this->data['equipment_name']],
-            [
-                'last_revision_on' => $this->data['last_revision_on'] ?: null,
-                'interval_months' => $this->data['interval_months'] ?: 24,
-            ],
-        );
+        $taken = User::query()
+            ->where('email', $email)
+            ->when($this->record->exists, fn ($query) => $query->whereKeyNot($this->record->id))
+            ->exists();
+
+        if ($taken) {
+            throw new RowImportFailedException('E-mailul este deja folosit.');
+        }
     }
 
     public static function getCompletedNotificationBody(Import $import): string

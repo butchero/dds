@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Equipment;
 
 use App\Filament\Resources\Equipment\Pages\ManageEquipment;
+use App\Models\Address;
 use App\Models\Equipment;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
@@ -12,7 +13,9 @@ use Filament\Actions\EditAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
@@ -41,19 +44,32 @@ class EquipmentResource extends Resource
                 Select::make('user_id')
                     ->label('Client')
                     ->relationship('user', 'name')
-                    ->required(),
+                    ->required()
+                    ->live(),
                 TextInput::make('name')
                     ->label('Nume')
                     ->required(),
                 TextInput::make('type')
                     ->label('Tip'),
+                Select::make('address_id')
+                    ->label('Adresă')
+                    ->options(fn (Get $get): array => Address::query()
+                        ->where('user_id', $get('user_id'))
+                        ->get()
+                        ->mapWithKeys(fn (Address $address): array => [$address->id => $address->line()])
+                        ->all())
+                    ->searchable(),
+                Select::make('interval_months')
+                    ->label('Interval (luni)')
+                    ->options([12 => '12', 24 => '24'])
+                    ->default(24)
+                    ->required(),
                 DatePicker::make('last_revision_on')
                     ->label('Ultima revizie'),
-                TextInput::make('interval_months')
-                    ->label('Interval (luni)')
-                    ->required()
-                    ->numeric()
-                    ->default(24),
+                Toggle::make('notify_email')
+                    ->label('Notificare pe email'),
+                Toggle::make('notify_sms')
+                    ->label('Notificare pe SMS'),
                 DatePicker::make('next_revision_on')
                     ->label('Următoarea revizie'),
                 DatePicker::make('notified_on')

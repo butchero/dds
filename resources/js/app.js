@@ -1,4 +1,5 @@
 import { createApp } from 'vue/dist/vue.esm-bundler.js';
+import CatalogLayoutToggle from './Components/CatalogLayoutToggle.vue';
 
 const storageKey = 'dds-cookie-consent';
 
@@ -8,45 +9,19 @@ document.querySelectorAll('[data-cookies-open]').forEach((button) => {
     });
 });
 
-document.querySelectorAll('[data-mobile-menu]').forEach((element) => {
-    createApp({
-        data: () => ({ open: false }),
+document.querySelectorAll('[data-catalog-layout-toggle]').forEach((element) => {
+    createApp(CatalogLayoutToggle, {
+        gridUrl: element.dataset.gridUrl,
+        listUrl: element.dataset.listUrl,
+        layout: element.dataset.layout,
+        gridLabel: element.dataset.gridLabel,
+        listLabel: element.dataset.listLabel,
     }).mount(element);
 });
 
-document.querySelectorAll('[data-banner-rotator]').forEach((element) => {
+document.querySelectorAll('[data-mobile-menu]').forEach((element) => {
     createApp({
-        data: () => ({ current: 0, timer: null, started: false }),
-        mounted() {
-            this.started = true;
-            this.start();
-        },
-        beforeUnmount() {
-            this.stop();
-        },
-        methods: {
-            start() {
-                this.stop();
-                const total = element.querySelectorAll('#rotator img').length;
-                if (total < 2) {
-                    return;
-                }
-                this.timer = setInterval(() => {
-                    const count = element.querySelectorAll('#rotator img').length;
-                    this.current = (this.current + 1) % count;
-                }, 3000);
-            },
-            stop() {
-                if (this.timer) {
-                    clearInterval(this.timer);
-                    this.timer = null;
-                }
-            },
-            choose(index) {
-                this.stop();
-                this.current = index;
-            },
-        },
+        data: () => ({ open: false }),
     }).mount(element);
 });
 

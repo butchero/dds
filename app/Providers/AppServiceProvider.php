@@ -2,10 +2,14 @@
 
 namespace App\Providers;
 
+use App\Models\User;
 use App\Notifications\Channels\SmsChannel;
 use App\Support\SiteCatalog;
 use Filament\Forms\Components\Field;
 use Filament\Tables\Columns\Column;
+use Illuminate\Auth\Notifications\ResetPassword;
+use Illuminate\Auth\Notifications\VerifyEmail;
+use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
@@ -31,6 +35,18 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Notification::extend('sms', fn () => new SmsChannel);
+
+        VerifyEmail::toMailUsing(function (object $notifiable, string $url) {
+            return (new MailMessage)
+                ->subject('Confirmă adresa de e-mail')
+                ->line('Apasă butonul ca să confirmi adresa de e-mail a contului DDS.')
+                ->action('Confirmă e-mailul', $url)
+                ->line('Dacă nu ai cerut tu contul, poți ignora acest mesaj.');
+        });
+
+        ResetPassword::createUrlUsing(function (User $user, string $token) {
+            return route('password.reset', ['token' => $token, 'email' => $user->getEmailForPasswordReset()]);
+        });
 
         $labels = [
             'name' => 'Nume',

@@ -3,14 +3,19 @@
 
 # DDS
 
-DDS Services Group is a presentation site and client account for heating boilers, air conditioning, and solar panels. There is no online checkout.
+DDS Services Group is a presentation site and client account for heating boilers, air conditioning, and solar panels. Visitors browse a catalog and clients book service. There is no online checkout.
 
-- The public site and the client account are Blade views rendered by Laravel (`resources/views`), with routes in `routes/web.php`. Vue in `resources/js` only enhances the mobile menu, the banner rotator, and the cookie banner. The admin is the Filament panel at `/admin`. Only users with `role = admin` can open it (`User::canAccessPanel`). Clients use `role = client`.
-- A client owns equipment and appointments. `Equipment` sets `next_revision_on` from `last_revision_on` plus `interval_months`. `php artisan revisions:remind` emails and texts the client when that date falls inside `config('dds.remind_days')`.
+- The public site and the client account are Blade views rendered by Laravel (`resources/views`), with routes in `routes/web.php`. Vue in `resources/js` only enhances the mobile menu, the banner rotator, the cookie banner, and the catalog layout icons. The admin is the Filament panel at `/dds-panel`. Only users with `role = admin` can open it (`User::canAccessPanel`). Clients use `role = client`. Public pages other than the home page show a breadcrumb trail with BreadcrumbList JSON-LD, on a full-width row under the search bar.
+- The catalog is categories and products. Categories can have a parent and a description. A product has a cover image and a gallery; the cover is the first gallery image. A category page lists that category and its child categories. The categories box is titled Categorii and lists every category with its subcategories. On a parent category page that full list stays, with only the open category in bold, together with the products and without filters. On a subcategory page the box is titled Subcategorii and lists the parent and that parent's subcategories, with the open subcategory in bold, and any filters for that subcategory sit under the list. Filters appear on a category that has no children: manufacturer, price and stock when its products have them, and only the filterable characteristics assigned to that category. The page heading is the category name, in the same color as the selected subcategory in the left menu, without a product count. The catalog layout switch is labeled Afișează. Each characteristic is an open group of checkboxes, one per value present in the category, with a product count beside the value. A value that matches no product after the other active filters is omitted. Checking a box applies the filter. Narrow screens show the same panel above the products. The catalog listing is a grid or one product per row; that choice is stored in the `dds_catalog_layout` cookie. A product card is a bordered box with a large photo, the name, up to three filterable characteristics, and the price. Search by name or manufacturer is separate from category filters.
+- Product characteristics are defined once, then assigned to categories. A product uses the characteristics of its own category and of its ancestor categories. On a category page, filters come only from characteristics assigned to the category being viewed, and only when that category has no children. Several values of one characteristic match with OR. Different characteristics match with AND. Types are text, number, yes/no, a single-choice list, and a multi-choice list. A characteristic is a filter only when an admin marks it as one. The importer leaves that mark off.
+- Price and quantity are optional. An empty product VAT rate uses the global rate from the `vat_rate` row in `site_settings` (`SiteSetting::get()`). An explicit `0` stays `0`. The `prices_include_vat` row records whether the entered price already includes VAT. The storefront shows the price with VAT as the main amount and the price without VAT underneath. A quantity of `0` means out of stock. A null quantity is not shown.
+- Catalog settings in the admin (global VAT rate and whether entered prices include VAT) are separate from the main-menu position, which stays on the existing site-settings screen.
+- A client owns addresses, equipment, billing profiles and appointments. The account is the public Blade site: the header links to login or registration, and after sign-in to the account. The account is split into separate pages for profile, addresses, equipment, billing and appointments. Filament at `/dds-panel` is only for the office, which can edit the same client data. An equipment stays at one address. A client can keep several addresses and several billing profiles, each either a person or a company. An appointment records the address and the billing profile; its status is requested, confirmed, done or cancelled, and the client sees the history. Marking it done sets that equipment's last revision. CSV import writes name and phone into `users`, without email or password. The client claims that row with an SMS code, then confirms the email. Google and Facebook sign-in is available; a later confirmed phone links the account to an unclaimed imported row. `Equipment` sets `next_revision_on` from `last_revision_on` plus `interval_months`. `php artisan revisions:remind` emails and texts only when the client opted in, and the email only if the address is verified. New appointments are mailed to the `company_email` site setting.
 - Services and news are JSON content blocks (`App\Filament\Support\ContentBlocks`, rendered by `resources/views/components/blocks.blade.php`). Slugs come from `HasSlug`.
-- Interface copy is Romanian. PHP names, methods, and comments stay English.
-- Locally the app runs in Laravel Sail (`compose.yaml`). The host has no `php` binary, so Artisan, Composer, and PHP run inside the `laravel.test` container. The site uses MySQL from `.env`, not the SQLite defaults in `.env.example`, and is served on `APP_PORT` (8088).
+- Interface copy is Romanian. Static copy written in templates, and other fixed interface labels, is passed through Laravel's `__()` helper, using the Romanian sentence as the key, so it can be localized later. Text stored in the database stays as stored. PHP names, CSS class names and theme tokens, and comments stay English.
+- Locally the site runs in Laravel Sail (`compose.yaml`) on `APP_PORT` (8088), with MySQL from `.env`, not the SQLite defaults in `.env.example`. Inside Sail the database host is `mysql`. From the Ubuntu host it is `127.0.0.1` on `FORWARD_DB_PORT`. The host PHP is `/usr/bin/php`. In Cursor's terminal, `php` may still be the Windows binary; use `/usr/bin/php` or `vendor/bin/sail` instead.
 - Do not add dependencies or new top-level directories without asking.
+- When a change adds a feature or changes behavior described here, update this file in the same change. Keep it a short overview. Then refresh `AGENTS.md` with `/usr/bin/php artisan boost:install --guidelines --no-interaction`.
 
 === foundation rules ===
 
@@ -23,10 +28,6 @@ This application is a Laravel application running on PHP 8.5. Always use the API
 Before relying on a package's API, confirm its installed version:
 - PHP packages: run `composer show --direct` to list direct dependencies with versions, or `composer show <vendor/package>` for a single package.
 - JS packages: check `package.json` for the installed versions.
-
-## Skills Activation
-
-This project has domain-specific skills available in `**/skills/**`. You MUST activate the relevant skill whenever you work in that domain—don't wait until you're stuck.
 
 ## Conventions
 
@@ -109,7 +110,6 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 # Deployment
 
 - Laravel can be deployed using [Laravel Cloud](https://cloud.laravel.com/), which is the fastest way to deploy and scale production Laravel applications.
-- Activate the `deploying-to-cloud` skill whenever deploying to Laravel Cloud, configuring Cloud environments or resources, using the Cloud CLI, or troubleshooting Cloud deployments.
 
 === tests rules ===
 

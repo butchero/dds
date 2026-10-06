@@ -13,9 +13,22 @@ class RevisionDueNotification extends Notification
 
     public function __construct(public Equipment $equipment) {}
 
+    /**
+     * @return array<int, string>
+     */
     public function via(object $notifiable): array
     {
-        return ['mail', 'sms'];
+        $channels = [];
+
+        if ($this->equipment->notify_email && filled($notifiable->email) && $notifiable->hasVerifiedEmail()) {
+            $channels[] = 'mail';
+        }
+
+        if ($this->equipment->notify_sms && filled($notifiable->routeNotificationFor('sms', $this))) {
+            $channels[] = 'sms';
+        }
+
+        return $channels;
     }
 
     public function toMail(object $notifiable): MailMessage

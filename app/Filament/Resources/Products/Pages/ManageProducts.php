@@ -13,7 +13,7 @@ class ManageProducts extends ManageRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
+            ProductResource::configureCreateAction(CreateAction::make()),
         ];
     }
 }
