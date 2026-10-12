@@ -71,7 +71,7 @@ class ImportBuderusCatalogTest extends TestCase
         $duplicate = ProductCategory::query()->where('slug', 'centrale-3')->first();
 
         $this->assertNotNull($parent);
-        $this->assertSame('Echipamente Buderus.', $parent->description);
+        $this->assertSame('Echipamente - Buderus.', $parent->description);
         $this->assertNotNull($child);
         $this->assertSame($parent->id, $child->parent_id);
         $this->assertSame('Centrale cu condensare.', $child->description);
@@ -84,7 +84,7 @@ class ImportBuderusCatalogTest extends TestCase
         $this->assertNotNull($small);
         $this->assertNotNull($large);
         $this->assertSame($child->id, $small->product_category_id);
-        $this->assertSame('Buderus', $small->manufacturer);
+        $this->assertSame('Buderus', $small->manufacturer->name);
         $this->assertSame('Centrală compactă pentru apartament.', $small->excerpt);
         $this->assertStringContainsString('Confort', (string) $small->description);
         $this->assertSame('produse/o1.webp', $small->image);

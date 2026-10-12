@@ -1,18 +1,21 @@
-<x-site-layout :title="__('Centrale termice Constanta - aparate aer conditionat Constanta')">
+<x-site-layout :title="$heading" :suffix="false" :image="$banners[0]['url'] ?? null">
     @php
-        $hero = collect($banners)->first(fn (array $banner): bool => $banner['title'] === 'Centrale termice');
-        $brandLogos = [
-            ['name' => __('Ariston'), 'src' => '/images/producatori/ariston.jpg', 'maker' => 'ARISTON'],
-            ['name' => __('Buderus'), 'src' => '/images/producatori/buderus.jpg', 'maker' => 'BUDERUS'],
-        ];
-        $brandLoop = array_merge(...array_fill(0, 6, $brandLogos));
+        $hero = $banners[0] ?? null;
+        $brandLoop = $brands === [] ? [] : array_merge(...array_fill(0, 6, $brands));
+        $brand = (string) \App\Models\SiteSetting::get('title_suffix');
+        $foundedYear = (string) \App\Models\SiteSetting::get('founded_year');
+        $office = \App\Support\ContactOffice::present();
+        $addressLine = trim(implode(', ', array_filter([
+            filled($office['city']) ? __('Orașul :city', ['city' => $office['city']]) : null,
+            $office['street'] ?: null,
+        ])));
     @endphp
 
     @if ($hero)
         <section class="relative isolate min-h-56 overflow-hidden rounded-lg bg-[#0a3d86] bg-cover bg-right sm:min-h-72" style="background-image: url('{{ $hero['url'] }}')">
             <div class="absolute inset-0 bg-gradient-to-r from-black/75 via-black/50 to-black/10"></div>
             <div class="relative flex max-w-xl flex-col gap-4 px-6 py-8 text-white sm:py-10">
-                <h1 class="text-3xl font-medium tracking-tight text-balance sm:text-4xl sm:leading-tight">{{ __('Centrale termice Constanta - aparate aer conditionat Constanta') }}</h1>
+                <h1 class="text-3xl font-medium tracking-tight text-balance sm:text-4xl sm:leading-tight">{{ $heading }}</h1>
                 <p class="text-base leading-6 text-white/90">{{ __('Bucurandu-ne de o reputatie foarte buna in randul clientilor nostri, suntem siguri ca produsele si serviciile companiei noastre va vor oferi o satisfactie garantata.') }}</p>
                 <div class="flex flex-wrap gap-3">
                     <a href="{{ route('login') }}" class="inline-flex h-10 items-center justify-center rounded-lg bg-brand px-4 text-sm font-medium text-white no-underline transition-all outline-none hover:bg-brand/90 focus-visible:ring-3 focus-visible:ring-white/70">{{ __('Programează o revizie') }}</a>
@@ -22,26 +25,28 @@
         </section>
     @endif
 
+    @if ($brandLoop !== [])
     <div class="group mt-3 overflow-hidden border-y border-hairline bg-white py-3">
         <div class="flex w-max animate-marquee group-hover:[animation-play-state:paused] motion-reduce:animate-none">
             @foreach ([1, 2] as $copy)
                 <div class="flex shrink-0 items-center gap-12 pr-12" @if ($copy === 2) aria-hidden="true" @endif>
-                    @foreach ($brandLoop as $brand)
-                        <a href="{{ route('search', ['producator' => $brand['maker']]) }}" class="flex h-12 items-center">
-                            <img src="{{ $brand['src'] }}" alt="{{ $copy === 1 ? $brand['name'] : '' }}" class="h-12 w-auto max-w-40 object-contain">
+                    @foreach ($brandLoop as $brandItem)
+                        <a href="{{ route('manufacturer', $brandItem['slug']) }}" class="flex h-12 items-center">
+                            <img src="{{ $brandItem['src'] }}" alt="{{ $copy === 1 ? $brandItem['name'] : '' }}" class="h-12 w-auto max-w-40 object-contain">
                         </a>
                     @endforeach
                 </div>
             @endforeach
         </div>
     </div>
+    @endif
 
     <div class="mt-4">
         @unless ($hero)
-            <h1 class="mb-2 text-lg font-medium tracking-tight text-brand">{{ __('Centrale termice Constanta - aparate aer conditionat Constanta') }}</h1>
+            <h1 class="mb-2 text-lg font-medium tracking-tight text-brand">{{ $heading }}</h1>
         @endunless
         <div class="p-[5px]">
-            <p class="mb-3">{!! __('Infiintata in anul 1995, <strong>DDS Services Group</strong> S.R.L. presteaza urmatoarele servicii:') !!}</p>
+            <p class="mb-3">{!! __('Înființată în anul :year, <strong>:brand</strong> prestează următoarele servicii:', ['year' => $foundedYear, 'brand' => e($brand)]) !!}</p>
             <ul class="mb-3 list-disc pl-10">
                 <li>{!! __('Comercializarea si montarea de <strong>centrale termice</strong> (Buderus, ACV, Ariston, Ferolli, etc.) si <strong>aparate de aer conditionat</strong> (Toshiba, Daikin, Ferroli).') !!}</li>
                 <li>{{ __('Service centrale termice si aparate de aer conditionat') }}</li>
@@ -50,7 +55,9 @@
             @unless ($hero)
                 <p class="mb-3">{{ __('Bucurandu-ne de o reputatie foarte buna in randul clientilor nostri, suntem siguri ca produsele si serviciile companiei noastre va vor oferi o satisfactie garantata.') }}</p>
             @endunless
-            {{ __('Adresa firma: Orasul Constanta, Bd. Mamaia nr. 70, Bl. Bi 1, parter.') }}
+            @if (filled($addressLine))
+                <p>{{ __('Adresa firmă: :address', ['address' => $addressLine]) }}</p>
+            @endif
         </div>
     </div>
 

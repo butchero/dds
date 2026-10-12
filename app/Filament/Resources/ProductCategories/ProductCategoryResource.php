@@ -26,40 +26,52 @@ class ProductCategoryResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static ?string $navigationLabel = 'Categorii produse';
-
-    protected static ?string $modelLabel = 'Categorie de produs';
-
-    protected static ?string $pluralModelLabel = 'Categorii produse';
-
     protected static bool $hasTitleCaseModelLabel = false;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Catalog';
-
     protected static ?string $recordTitleAttribute = 'name';
+
+    public static function getNavigationLabel(): string
+    {
+        return __('Categorii produse');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('Categorie de produs');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('Categorii produse');
+    }
+
+    public static function getNavigationGroup(): string|\UnitEnum|null
+    {
+        return __('Catalog');
+    }
 
     public static function form(Schema $schema): Schema
     {
         return $schema
             ->components([
                 Select::make('parent_id')
-                    ->label('Categorie părinte')
+                    ->label(__('Categorie părinte'))
                     ->relationship('parent', 'name'),
                 TextInput::make('name')
-                    ->label('Nume')
+                    ->label(__('Nume'))
                     ->required(),
                 TextInput::make('slug')
                     ->label('Slug'),
                 Textarea::make('description')
-                    ->label('Descriere')
+                    ->label(__('Descriere'))
                     ->columnSpanFull(),
                 TextInput::make('sort')
-                    ->label('Ordine')
+                    ->label(__('Ordine'))
                     ->required()
                     ->numeric()
                     ->default(0),
                 CheckboxList::make('attributes')
-                    ->label('Caracteristici')
+                    ->label(__('Caracteristici'))
                     ->relationship(
                         titleAttribute: 'name',
                         modifyQueryUsing: fn (Builder $query): Builder => $query->orderBy('sort')->orderBy('name'),
@@ -75,25 +87,25 @@ class ProductCategoryResource extends Resource
             ->recordTitleAttribute('name')
             ->columns([
                 TextColumn::make('parent.name')
-                    ->label('Categorie părinte')
+                    ->label(__('Categorie părinte'))
                     ->searchable(),
                 TextColumn::make('name')
-                    ->label('Nume')
+                    ->label(__('Nume'))
                     ->searchable(),
                 TextColumn::make('slug')
                     ->label('Slug')
                     ->searchable(),
                 TextColumn::make('sort')
-                    ->label('Ordine')
+                    ->label(__('Ordine'))
                     ->numeric()
                     ->sortable(),
                 TextColumn::make('created_at')
-                    ->label('Creat la')
+                    ->label(__('Creat la'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
-                    ->label('Actualizat la')
+                    ->label(__('Actualizat la'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

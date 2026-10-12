@@ -17,7 +17,7 @@ class Product extends Model
 
     protected $fillable = [
         'product_category_id', 'name', 'slug', 'excerpt', 'description',
-        'image', 'manufacturer', 'price', 'quantity', 'vat_rate', 'is_published', 'sort',
+        'image', 'manufacturer_id', 'price', 'quantity', 'vat_rate', 'is_published', 'sort',
     ];
 
     protected function casts(): array
@@ -33,6 +33,11 @@ class Product extends Model
     public function category(): BelongsTo
     {
         return $this->belongsTo(ProductCategory::class, 'product_category_id');
+    }
+
+    public function manufacturer(): BelongsTo
+    {
+        return $this->belongsTo(Manufacturer::class);
     }
 
     public function images(): HasMany

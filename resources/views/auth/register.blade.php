@@ -1,4 +1,4 @@
-<x-site-layout :title="__('Cont nou')" :breadcrumbs="\App\Support\Breadcrumbs::forPage(__('Cont nou'))">
+<x-site-layout :title="__('Cont nou')" :breadcrumbs="\App\Support\Breadcrumbs::forPage(__('Cont nou'))" :index="false">
     <h1 class="mb-2 text-lg font-medium tracking-tight text-brand">{{ __('Cont nou') }}</h1>
     <form class="max-w-sm space-y-3" method="post" action="{{ route('register') }}">
         @csrf
@@ -23,7 +23,6 @@
     </form>
     <p class="mt-4 space-x-3 text-sm">
         <a class="text-link" href="{{ route('login') }}">{{ __('Autentificare') }}</a>
-        <a class="text-link" href="{{ route('claim') }}">{{ __('Am deja număr la DDS') }}</a>
     </p>
     <div class="mt-4 flex flex-wrap gap-3">
         <a class="inline-flex h-9 items-center justify-center rounded-lg border border-input bg-white px-3 text-sm font-medium text-brand" href="{{ route('social.redirect', 'google') }}">{{ __('Continuă cu Google') }}</a>

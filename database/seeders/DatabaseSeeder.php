@@ -132,7 +132,7 @@ class DatabaseSeeder extends Seeder
         MenuItem::query()->updateOrCreate(['label' => 'Home'], ['url' => '/', 'sort' => 1]);
         MenuItem::query()->updateOrCreate(['label' => 'Servicii'], ['url' => '/servicii/revizie-centrala', 'sort' => 2]);
         MenuItem::query()->updateOrCreate(['label' => 'Despre noi'], ['url' => '/servicii/despre-noi', 'sort' => 3]);
-        MenuItem::query()->updateOrCreate(['label' => 'Contact'], ['url' => '/servicii/contact', 'sort' => 4]);
+        MenuItem::query()->updateOrCreate(['label' => 'Contact'], ['url' => '/contact', 'sort' => 4]);
 
         $banners = [
             ['Chaffoteaux', '19.png', 1],

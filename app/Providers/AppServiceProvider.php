@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Models\SiteSetting;
 use App\Models\User;
 use App\Notifications\Channels\SmsChannel;
 use App\Support\SiteCatalog;
@@ -38,10 +39,12 @@ class AppServiceProvider extends ServiceProvider
 
         VerifyEmail::toMailUsing(function (object $notifiable, string $url) {
             return (new MailMessage)
-                ->subject('Confirmă adresa de e-mail')
-                ->line('Apasă butonul ca să confirmi adresa de e-mail a contului DDS.')
-                ->action('Confirmă e-mailul', $url)
-                ->line('Dacă nu ai cerut tu contul, poți ignora acest mesaj.');
+                ->subject(__('Confirmă adresa de e-mail'))
+                ->line(__('Apasă butonul ca să confirmi adresa de e-mail a contului :brand.', [
+                    'brand' => SiteSetting::get('title_suffix'),
+                ]))
+                ->action(__('Confirmă e-mailul'), $url)
+                ->line(__('Dacă nu ai cerut tu contul, poți ignora acest mesaj.'));
         });
 
         ResetPassword::createUrlUsing(function (User $user, string $token) {
@@ -49,42 +52,43 @@ class AppServiceProvider extends ServiceProvider
         });
 
         $labels = [
-            'name' => 'Nume',
-            'title' => 'Titlu',
-            'slug' => 'Adresă',
-            'email' => 'E-mail',
-            'phone' => 'Telefon',
-            'password' => 'Parolă',
-            'role' => 'Rol',
-            'sort' => 'Ordine',
-            'image' => 'Imagine',
-            'link' => 'Link',
-            'url' => 'Adresă',
-            'label' => 'Etichetă',
-            'excerpt' => 'Rezumat',
-            'description' => 'Descriere',
-            'manufacturer' => 'Producător',
-            'type' => 'Tip',
-            'note' => 'Observații',
-            'status' => 'Stare',
-            'blocks' => 'Blocuri',
-            'is_published' => 'Publicat',
-            'show_in_sidebar' => 'În meniul din stânga',
-            'menu_position' => 'Poziție meniu',
-            'published_at' => 'Data publicării',
-            'parent_id' => 'Categorie părinte',
-            'user_id' => 'Client',
-            'equipment_id' => 'Echipament',
-            'product_category_id' => 'Categorie',
-            'service_category_id' => 'Categorie',
-            'last_revision_on' => 'Ultima revizie',
-            'next_revision_on' => 'Următoarea revizie',
-            'notified_on' => 'Notificat la',
-            'interval_months' => 'Interval (luni)',
-            'requested_on' => 'Data cerută',
-            'email_verified_at' => 'E-mail verificat la',
-            'created_at' => 'Creat la',
-            'updated_at' => 'Actualizat la',
+            'name' => __('Nume'),
+            'title' => __('Titlu'),
+            'slug' => __('Adresă'),
+            'email' => __('E-mail'),
+            'phone' => __('Telefon'),
+            'password' => __('Parolă'),
+            'role' => __('Rol'),
+            'sort' => __('Ordine'),
+            'image' => __('Imagine'),
+            'link' => __('Link'),
+            'url' => __('Adresă'),
+            'label' => __('Etichetă'),
+            'excerpt' => __('Rezumat'),
+            'description' => __('Descriere'),
+            'manufacturer_id' => __('Producător'),
+            'logo' => __('Logo'),
+            'type' => __('Tip'),
+            'note' => __('Observații'),
+            'status' => __('Stare'),
+            'blocks' => __('Blocuri'),
+            'is_published' => __('Publicat'),
+            'show_in_sidebar' => __('În meniul din stânga'),
+            'menu_position' => __('Poziție meniu'),
+            'published_at' => __('Data publicării'),
+            'parent_id' => __('Categorie părinte'),
+            'user_id' => __('Client'),
+            'equipment_id' => __('Echipament'),
+            'product_category_id' => __('Categorie'),
+            'service_category_id' => __('Categorie'),
+            'last_revision_on' => __('Ultima revizie'),
+            'next_revision_on' => __('Următoarea revizie'),
+            'notified_on' => __('Notificat la'),
+            'interval_months' => __('Interval (luni)'),
+            'requested_on' => __('Data cerută'),
+            'email_verified_at' => __('E-mail verificat la'),
+            'created_at' => __('Creat la'),
+            'updated_at' => __('Actualizat la'),
         ];
 
         Field::configureUsing(function (Field $field) use ($labels): void {

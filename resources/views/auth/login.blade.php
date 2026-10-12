@@ -1,4 +1,4 @@
-<x-site-layout :title="__('Autentificare')" :breadcrumbs="\App\Support\Breadcrumbs::forPage(__('Autentificare'))">
+<x-site-layout :title="__('Autentificare')" :breadcrumbs="\App\Support\Breadcrumbs::forPage(__('Autentificare'))" :index="false">
     <h1 class="mb-2 text-lg font-medium tracking-tight text-brand">{{ __('Autentificare') }}</h1>
     @if (session('status'))
         <p class="mb-3 text-link">{{ session('status') }}</p>
@@ -14,7 +14,6 @@
     </form>
     <p class="mt-4 space-x-3 text-sm">
         <a class="text-link" href="{{ route('register') }}">{{ __('Creează cont') }}</a>
-        <a class="text-link" href="{{ route('claim') }}">{{ __('Am deja număr la DDS') }}</a>
         <a class="text-link" href="{{ route('password.request') }}">{{ __('Am uitat parola') }}</a>
     </p>
     <div class="mt-4 flex flex-wrap gap-3">

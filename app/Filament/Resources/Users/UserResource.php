@@ -33,46 +33,58 @@ class UserResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static ?string $navigationLabel = 'Clienți';
-
-    protected static ?string $modelLabel = 'client';
-
-    protected static ?string $pluralModelLabel = 'Clienți';
-
-    protected static string|\UnitEnum|null $navigationGroup = 'Clienți';
-
     protected static ?string $recordTitleAttribute = 'name';
+
+    public static function getNavigationLabel(): string
+    {
+        return __('Clienți');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('client');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('Clienți');
+    }
+
+    public static function getNavigationGroup(): string|\UnitEnum|null
+    {
+        return __('Clienți');
+    }
 
     public static function form(Schema $schema): Schema
     {
         return $schema
             ->components([
                 TextInput::make('name')
-                    ->label('Nume')
+                    ->label(__('Nume'))
                     ->required(),
                 TextInput::make('email')
-                    ->label('E-mail')
+                    ->label(__('E-mail'))
                     ->email()
                     ->required(fn (Get $get): bool => $get('role') === 'admin')
                     ->unique(ignoreRecord: true),
                 TextInput::make('phone')
-                    ->label('Telefon')
+                    ->label(__('Telefon'))
                     ->tel(),
                 Select::make('role')
-                    ->label('Rol')
+                    ->label(__('Rol'))
                     ->options(self::roles())
                     ->required()
                     ->default('client')
                     ->live(),
                 DateTimePicker::make('email_verified_at')
-                    ->label('E-mail verificat la'),
+                    ->label(__('E-mail verificat la')),
                 TextInput::make('password')
-                    ->label('Parolă')
+                    ->label(__('Parolă'))
                     ->password()
                     ->revealable()
                     ->dehydrated(fn (?string $state): bool => filled($state))
                     ->required(fn (string $operation, Get $get): bool => $operation === 'create' && ($get('role') === 'admin' || filled($get('email')))),
-                Section::make('Adrese')
+                Section::make(__('Adrese'))
                     ->visible(fn (string $operation): bool => $operation === 'edit')
                     ->schema([
                         Repeater::make('addresses')
@@ -81,7 +93,7 @@ class UserResource extends Resource
                             ->columns(2)
                             ->columnSpanFull(),
                     ]),
-                Section::make('Echipamente')
+                Section::make(__('Echipamente'))
                     ->visible(fn (string $operation): bool => $operation === 'edit')
                     ->schema([
                         Repeater::make('equipment')
@@ -90,7 +102,7 @@ class UserResource extends Resource
                             ->columns(2)
                             ->columnSpanFull(),
                     ]),
-                Section::make('Facturare')
+                Section::make(__('Facturare'))
                     ->visible(fn (string $operation): bool => $operation === 'edit')
                     ->schema([
                         Repeater::make('billingProfiles')
@@ -108,13 +120,13 @@ class UserResource extends Resource
     public static function addressFields(): array
     {
         return [
-            TextInput::make('label')->label('Etichetă'),
-            Select::make('county')->label('Județ')->options(Counties::options())->required()->searchable(),
-            TextInput::make('city')->label('Localitate')->required(),
-            TextInput::make('street')->label('Stradă')->required(),
-            TextInput::make('street_number')->label('Număr')->required(),
-            TextInput::make('postal_code')->label('Cod poștal'),
-            TextInput::make('details')->label('Detalii')->columnSpanFull(),
+            TextInput::make('label')->label(__('Etichetă')),
+            Select::make('county')->label(__('Județ'))->options(Counties::options())->required()->searchable(),
+            TextInput::make('city')->label(__('Localitate'))->required(),
+            TextInput::make('street')->label(__('Stradă'))->required(),
+            TextInput::make('street_number')->label(__('Număr'))->required(),
+            TextInput::make('postal_code')->label(__('Cod poștal')),
+            TextInput::make('details')->label(__('Detalii'))->columnSpanFull(),
         ];
     }
 
@@ -124,10 +136,10 @@ class UserResource extends Resource
     public static function equipmentFields(): array
     {
         return [
-            TextInput::make('name')->label('Nume')->required(),
-            TextInput::make('type')->label('Tip'),
+            TextInput::make('name')->label(__('Nume'))->required(),
+            TextInput::make('type')->label(__('Tip')),
             Select::make('address_id')
-                ->label('Adresă')
+                ->label(__('Adresă'))
                 ->options(function (mixed $livewire): array {
                     $owner = method_exists($livewire, 'getRecord') ? $livewire->getRecord() : null;
 
@@ -135,13 +147,13 @@ class UserResource extends Resource
                 })
                 ->searchable(),
             Select::make('interval_months')
-                ->label('Interval (luni)')
+                ->label(__('Interval (luni)'))
                 ->options([12 => '12', 24 => '24'])
                 ->default(24)
                 ->required(),
-            DatePicker::make('last_revision_on')->label('Ultima revizie'),
-            Toggle::make('notify_email')->label('Notificare pe email'),
-            Toggle::make('notify_sms')->label('Notificare pe SMS'),
+            DatePicker::make('last_revision_on')->label(__('Ultima revizie')),
+            Toggle::make('notify_email')->label(__('Notificare pe email')),
+            Toggle::make('notify_sms')->label(__('Notificare pe SMS')),
         ];
     }
 
@@ -152,26 +164,26 @@ class UserResource extends Resource
     {
         return [
             Select::make('type')
-                ->label('Tip')
+                ->label(__('Tip'))
                 ->options([
-                    'individual' => 'Persoană fizică',
-                    'company' => 'Persoană juridică',
+                    'individual' => __('Persoană fizică'),
+                    'company' => __('Persoană juridică'),
                 ])
                 ->required()
                 ->live(),
-            TextInput::make('last_name')->label('Nume')->visible(fn (Get $get): bool => $get('type') === 'individual')->required(fn (Get $get): bool => $get('type') === 'individual'),
-            TextInput::make('first_name')->label('Prenume')->visible(fn (Get $get): bool => $get('type') === 'individual')->required(fn (Get $get): bool => $get('type') === 'individual'),
-            TextInput::make('company_name')->label('Denumire')->visible(fn (Get $get): bool => $get('type') === 'company')->required(fn (Get $get): bool => $get('type') === 'company'),
-            TextInput::make('cui')->label('CUI')->visible(fn (Get $get): bool => $get('type') === 'company')->required(fn (Get $get): bool => $get('type') === 'company'),
-            TextInput::make('registration_number')->label('Nr. Reg. Com.')->visible(fn (Get $get): bool => $get('type') === 'company')->required(fn (Get $get): bool => $get('type') === 'company'),
-            Toggle::make('is_vat_payer')->label('Plătitor de TVA')->visible(fn (Get $get): bool => $get('type') === 'company'),
-            Select::make('county')->label('Județ')->options(Counties::options())->required()->searchable(),
-            TextInput::make('city')->label('Localitate')->required(),
-            TextInput::make('street')->label('Stradă')->required(),
-            TextInput::make('street_number')->label('Număr')->required(),
-            TextInput::make('postal_code')->label('Cod poștal'),
-            TextInput::make('bank')->label('Bancă')->visible(fn (Get $get): bool => $get('type') === 'company'),
-            TextInput::make('iban')->label('IBAN')->visible(fn (Get $get): bool => $get('type') === 'company'),
+            TextInput::make('last_name')->label(__('Nume'))->visible(fn (Get $get): bool => $get('type') === 'individual')->required(fn (Get $get): bool => $get('type') === 'individual'),
+            TextInput::make('first_name')->label(__('Prenume'))->visible(fn (Get $get): bool => $get('type') === 'individual')->required(fn (Get $get): bool => $get('type') === 'individual'),
+            TextInput::make('company_name')->label(__('Denumire'))->visible(fn (Get $get): bool => $get('type') === 'company')->required(fn (Get $get): bool => $get('type') === 'company'),
+            TextInput::make('cui')->label(__('CUI'))->visible(fn (Get $get): bool => $get('type') === 'company')->required(fn (Get $get): bool => $get('type') === 'company'),
+            TextInput::make('registration_number')->label(__('Nr. Reg. Com.'))->visible(fn (Get $get): bool => $get('type') === 'company')->required(fn (Get $get): bool => $get('type') === 'company'),
+            Toggle::make('is_vat_payer')->label(__('Plătitor de TVA'))->visible(fn (Get $get): bool => $get('type') === 'company'),
+            Select::make('county')->label(__('Județ'))->options(Counties::options())->required()->searchable(),
+            TextInput::make('city')->label(__('Localitate'))->required(),
+            TextInput::make('street')->label(__('Stradă'))->required(),
+            TextInput::make('street_number')->label(__('Număr'))->required(),
+            TextInput::make('postal_code')->label(__('Cod poștal')),
+            TextInput::make('bank')->label(__('Bancă'))->visible(fn (Get $get): bool => $get('type') === 'company'),
+            TextInput::make('iban')->label(__('IBAN'))->visible(fn (Get $get): bool => $get('type') === 'company'),
         ];
     }
 
@@ -196,29 +208,29 @@ class UserResource extends Resource
             ->recordTitleAttribute('name')
             ->columns([
                 TextColumn::make('name')
-                    ->label('Nume')
+                    ->label(__('Nume'))
                     ->searchable(),
                 TextColumn::make('email')
-                    ->label('E-mail')
+                    ->label(__('E-mail'))
                     ->searchable(),
                 TextColumn::make('phone')
-                    ->label('Telefon')
+                    ->label(__('Telefon'))
                     ->searchable(),
                 TextColumn::make('role')
-                    ->label('Rol')
+                    ->label(__('Rol'))
                     ->formatStateUsing(fn (string $state): string => self::roles()[$state] ?? $state)
                     ->searchable(),
                 TextColumn::make('email_verified_at')
-                    ->label('E-mail verificat la')
+                    ->label(__('E-mail verificat la'))
                     ->dateTime()
                     ->sortable(),
                 TextColumn::make('created_at')
-                    ->label('Creat la')
+                    ->label(__('Creat la'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
-                    ->label('Actualizat la')
+                    ->label(__('Actualizat la'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -243,8 +255,8 @@ class UserResource extends Resource
     public static function roles(): array
     {
         return [
-            'admin' => 'Administrator',
-            'client' => 'Client',
+            'admin' => __('Administrator'),
+            'client' => __('Client'),
         ];
     }
 

@@ -29,27 +29,39 @@ class AppointmentResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static ?string $navigationLabel = 'Programări';
-
-    protected static ?string $modelLabel = 'programare';
-
-    protected static ?string $pluralModelLabel = 'Programări';
-
-    protected static string|\UnitEnum|null $navigationGroup = 'Clienți';
-
     protected static ?string $recordTitleAttribute = 'status';
+
+    public static function getNavigationLabel(): string
+    {
+        return __('Programări');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('programare');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('Programări');
+    }
+
+    public static function getNavigationGroup(): string|\UnitEnum|null
+    {
+        return __('Clienți');
+    }
 
     public static function form(Schema $schema): Schema
     {
         return $schema
             ->components([
                 Select::make('user_id')
-                    ->label('Client')
+                    ->label(__('Client'))
                     ->relationship('user', 'name')
                     ->required()
                     ->live(),
                 Select::make('address_id')
-                    ->label('Adresă')
+                    ->label(__('Adresă'))
                     ->options(fn (Get $get): array => Address::query()
                         ->where('user_id', $get('user_id'))
                         ->get()
@@ -58,7 +70,7 @@ class AppointmentResource extends Resource
                     ->searchable()
                     ->live(),
                 Select::make('billing_profile_id')
-                    ->label('Facturare')
+                    ->label(__('Facturare'))
                     ->options(fn (Get $get): array => BillingProfile::query()
                         ->where('user_id', $get('user_id'))
                         ->get()
@@ -66,7 +78,7 @@ class AppointmentResource extends Resource
                         ->all())
                     ->searchable(),
                 Select::make('equipment_id')
-                    ->label('Echipament')
+                    ->label(__('Echipament'))
                     ->options(fn (Get $get): array => Equipment::query()
                         ->where('user_id', $get('user_id'))
                         ->when($get('address_id'), fn ($query, $addressId) => $query->where('address_id', $addressId))
@@ -74,12 +86,12 @@ class AppointmentResource extends Resource
                         ->all())
                     ->searchable(),
                 DatePicker::make('requested_on')
-                    ->label('Data solicitată'),
+                    ->label(__('Data solicitată')),
                 Textarea::make('note')
-                    ->label('Notă')
+                    ->label(__('Notă'))
                     ->columnSpanFull(),
                 Select::make('status')
-                    ->label('Stare')
+                    ->label(__('Stare'))
                     ->options(Appointment::statuses())
                     ->required()
                     ->default('requested'),
@@ -92,39 +104,39 @@ class AppointmentResource extends Resource
             ->recordTitleAttribute('status')
             ->columns([
                 TextColumn::make('user.name')
-                    ->label('Client')
+                    ->label(__('Client'))
                     ->searchable(),
                 TextColumn::make('address.city')
-                    ->label('Adresă')
+                    ->label(__('Adresă'))
                     ->formatStateUsing(fn ($state, Appointment $record): string => $record->address?->line() ?? ''),
                 TextColumn::make('billingProfile.company_name')
-                    ->label('Facturare')
+                    ->label(__('Facturare'))
                     ->formatStateUsing(fn ($state, Appointment $record): string => $record->billingProfile?->displayName() ?? ''),
                 TextColumn::make('equipment.name')
-                    ->label('Echipament')
+                    ->label(__('Echipament'))
                     ->searchable(),
                 TextColumn::make('requested_on')
-                    ->label('Data solicitată')
+                    ->label(__('Data solicitată'))
                     ->date()
                     ->sortable(),
                 TextColumn::make('status')
-                    ->label('Stare')
+                    ->label(__('Stare'))
                     ->formatStateUsing(fn (string $state): string => Appointment::statuses()[$state] ?? $state)
                     ->searchable(),
                 TextColumn::make('created_at')
-                    ->label('Creat la')
+                    ->label(__('Creat la'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
-                    ->label('Actualizat la')
+                    ->label(__('Actualizat la'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 SelectFilter::make('status')
-                    ->label('Stare')
+                    ->label(__('Stare'))
                     ->options(Appointment::statuses()),
             ])
             ->recordActions([

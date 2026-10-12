@@ -24,17 +24,17 @@ class AppointmentRequestedNotification extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         $appointment = $this->appointment->loadMissing(['user', 'address', 'billingProfile', 'equipment']);
-        $billing = $appointment->billingProfile?->displayName() ?? 'nespecificată';
-        $address = $appointment->address?->line() ?? 'nespecificată';
+        $billing = $appointment->billingProfile?->displayName() ?? __('nespecificată');
+        $address = $appointment->address?->line() ?? __('nespecificată');
 
         return (new MailMessage)
-            ->subject('Programare nouă de la '.$appointment->user?->name)
-            ->line('Client: '.($appointment->user?->name ?? 'necunoscut'))
-            ->line('Telefon: '.($appointment->user?->phone ?? 'nespecificat'))
-            ->line('Adresă: '.$address)
-            ->line('Facturare: '.$billing)
-            ->line('Data cerută: '.($appointment->requested_on?->format('d.m.Y') ?? 'nespecificată'))
-            ->line('Echipament: '.($appointment->equipment?->name ?? 'nespecificat'))
-            ->line('Observații: '.($appointment->note ?: 'fără'));
+            ->subject(__('Programare nouă de la :name', ['name' => $appointment->user?->name]))
+            ->line(__('Client: :name', ['name' => $appointment->user?->name ?? __('necunoscut')]))
+            ->line(__('Telefon: :phone', ['phone' => $appointment->user?->phone ?? __('nespecificat')]))
+            ->line(__('Adresă: :address', ['address' => $address]))
+            ->line(__('Facturare: :billing', ['billing' => $billing]))
+            ->line(__('Data cerută: :date', ['date' => $appointment->requested_on?->format('d.m.Y') ?? __('nespecificată')]))
+            ->line(__('Echipament: :equipment', ['equipment' => $appointment->equipment?->name ?? __('nespecificat')]))
+            ->line(__('Observații: :note', ['note' => $appointment->note ?: __('fără')]));
     }
 }

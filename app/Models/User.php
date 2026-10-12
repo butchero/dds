@@ -35,7 +35,7 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
 
             if ($phone === null) {
                 throw ValidationException::withMessages([
-                    'phone' => 'Telefonul trebuie să fie un număr de mobil din România.',
+                    'phone' => __('Telefonul trebuie să fie un număr de mobil din România.'),
                 ]);
             }
 

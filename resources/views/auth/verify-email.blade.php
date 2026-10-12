@@ -1,4 +1,4 @@
-<x-site-layout :title="__('Confirmă emailul')" :breadcrumbs="\App\Support\Breadcrumbs::forPage(__('Confirmă emailul'))">
+<x-site-layout :title="__('Confirmă emailul')" :breadcrumbs="\App\Support\Breadcrumbs::forPage(__('Confirmă emailul'))" :index="false">
     <h1 class="mb-2 text-lg font-medium tracking-tight text-brand">{{ __('Confirmă emailul') }}</h1>
     @if (session('status'))
         <p class="mb-3 text-link">{{ session('status') }}</p>

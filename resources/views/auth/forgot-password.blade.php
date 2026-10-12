@@ -1,4 +1,4 @@
-<x-site-layout :title="__('Parolă uitată')" :breadcrumbs="\App\Support\Breadcrumbs::forPage(__('Parolă uitată'))">
+<x-site-layout :title="__('Parolă uitată')" :breadcrumbs="\App\Support\Breadcrumbs::forPage(__('Parolă uitată'))" :index="false">
     <h1 class="mb-2 text-lg font-medium tracking-tight text-brand">{{ __('Parolă uitată') }}</h1>
     @if (session('status'))
         <p class="mb-3 text-link">{{ session('status') }}</p>

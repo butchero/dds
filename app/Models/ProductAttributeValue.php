@@ -39,7 +39,7 @@ class ProductAttributeValue extends Model
             AttributeType::Number => $this->value_number === null
                 ? null
                 : self::formatNumber((string) $this->value_number).($attribute->unit ? ' '.$attribute->unit : ''),
-            AttributeType::Boolean => $this->value_boolean === null ? null : ($this->value_boolean ? 'Da' : 'Nu'),
+            AttributeType::Boolean => $this->value_boolean === null ? null : ($this->value_boolean ? __('Da') : __('Nu')),
             AttributeType::Select, AttributeType::Multiselect => null,
         };
     }

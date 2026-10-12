@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use App\Models\Manufacturer;
 use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\ProductImage;
@@ -153,6 +154,8 @@ class BuderusCatalog
             $variants = [['id' => $variantId, 'name' => $name !== '' ? $name : 'Produs']];
         }
 
+        $manufacturer = Manufacturer::query()->firstOrCreate(['name' => 'Buderus']);
+
         foreach ($variants as $variant) {
             $product = Product::query()->create([
                 'product_category_id' => $category->id,
@@ -160,7 +163,7 @@ class BuderusCatalog
                 'slug' => $this->uniqueSlug(Product::class, $variant['name'], $variant['id'] ?? $this->buderusId($url) ?? 'produs'),
                 'excerpt' => $excerpt,
                 'description' => $description === '' ? null : $description,
-                'manufacturer' => 'Buderus',
+                'manufacturer_id' => $manufacturer->id,
                 'is_published' => true,
                 'sort' => $this->products + 1,
             ]);
@@ -589,6 +592,7 @@ class BuderusCatalog
         }
 
         $text = html_entity_decode($node->textContent ?? '', ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $text = str_replace(["\u{2014}", "\u{2013}"], '-', $text);
         $text = preg_replace('/\s+/u', ' ', $text) ?? '';
 
         return trim($text);

@@ -14,16 +14,11 @@ use Filament\Schemas\Components\EmbeddedSchema;
 use Filament\Schemas\Components\Form;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Contracts\Support\Htmlable;
 
 class CatalogSettings extends Page
 {
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCog6Tooth;
-
-    protected static ?string $navigationLabel = 'Setări catalog';
-
-    protected static ?string $title = 'Setări catalog';
-
-    protected static string|\UnitEnum|null $navigationGroup = 'Catalog';
 
     protected static ?int $navigationSort = 40;
 
@@ -31,6 +26,21 @@ class CatalogSettings extends Page
      * @var array<string, mixed>|null
      */
     public ?array $data = [];
+
+    public static function getNavigationLabel(): string
+    {
+        return __('Setări catalog');
+    }
+
+    public function getTitle(): string|Htmlable
+    {
+        return __('Setări catalog');
+    }
+
+    public static function getNavigationGroup(): string|\UnitEnum|null
+    {
+        return __('Catalog');
+    }
 
     public function mount(): void
     {
@@ -50,15 +60,15 @@ class CatalogSettings extends Page
         return $schema
             ->components([
                 TextInput::make('vat_rate')
-                    ->label('Cotă TVA (%)')
+                    ->label(__('Cotă TVA (%)'))
                     ->numeric()
                     ->required()
                     ->minValue(0)
                     ->maxValue(100)
                     ->step(0.01),
                 Toggle::make('prices_include_vat')
-                    ->label('Prețurile introduse includ TVA')
-                    ->helperText('Dacă e oprit, prețul introdus la produs este fără TVA.'),
+                    ->label(__('Prețurile introduse includ TVA'))
+                    ->helperText(__('Dacă e oprit, prețul introdus la produs este fără TVA.')),
             ]);
     }
 
@@ -72,7 +82,7 @@ class CatalogSettings extends Page
                     ->footer([
                         Actions::make([
                             Action::make('save')
-                                ->label('Salvează')
+                                ->label(__('Salvează'))
                                 ->submit('save'),
                         ]),
                     ]),
@@ -87,7 +97,7 @@ class CatalogSettings extends Page
         SiteSetting::set('prices_include_vat', $state['prices_include_vat']);
 
         Notification::make()
-            ->title('Setările au fost salvate.')
+            ->title(__('Setările au fost salvate.'))
             ->success()
             ->send();
     }

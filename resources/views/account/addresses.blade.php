@@ -1,45 +1,44 @@
 @php
     $counties = \App\Support\Counties::options();
-    $button = 'inline-flex h-9 items-center justify-center rounded-lg bg-brand px-3 text-sm font-medium text-white';
 @endphp
 
-<x-account-page :title="__('Adrese')" current="addresses">
-    @foreach ($user->addresses as $address)
-        <form class="mt-3 max-w-sm space-y-3 border border-hairline p-3" method="post" action="{{ route('account.addresses.update', $address) }}">
-            @csrf
-            <x-ui.input type="text" name="label" value="{{ $address->label }}" :placeholder="__('Etichetă, de exemplu Acasă')" />
-            <x-ui.select name="county" required>
-                @foreach ($counties as $county)
-                    <option value="{{ $county }}" @selected($address->county === $county)>{{ $county }}</option>
-                @endforeach
-            </x-ui.select>
-            <x-ui.input type="text" name="city" value="{{ $address->city }}" required :placeholder="__('Localitate')" />
-            <x-ui.input type="text" name="street" value="{{ $address->street }}" required :placeholder="__('Stradă')" />
-            <x-ui.input type="text" name="street_number" value="{{ $address->street_number }}" required :placeholder="__('Număr')" />
-            <x-ui.input type="text" name="postal_code" value="{{ $address->postal_code }}" :placeholder="__('Cod poștal')" />
-            <x-ui.input type="text" name="details" value="{{ $address->details }}" :placeholder="__('Bloc, scară, apartament')" />
-            <button class="{{ $button }}" type="submit">{{ __('Salvează adresa') }}</button>
-        </form>
-        <form method="post" action="{{ route('account.addresses.delete', $address) }}">
-            @csrf
-            @method('DELETE')
-            <button class="mt-1 text-sm underline" type="submit">{{ __('Șterge adresa') }}</button>
-        </form>
-    @endforeach
-    <form class="mt-3 max-w-sm space-y-3" method="post" action="{{ route('account.addresses.store') }}">
-        @csrf
-        <x-ui.input type="text" name="label" value="{{ old('label') }}" :placeholder="__('Etichetă, de exemplu Acasă')" />
-        <x-ui.select name="county" required>
-            <option value="">{{ __('Județ') }}</option>
-            @foreach ($counties as $county)
-                <option value="{{ $county }}" @selected(old('county') === $county)>{{ $county }}</option>
-            @endforeach
-        </x-ui.select>
-        <x-ui.input type="text" name="city" value="{{ old('city') }}" required :placeholder="__('Localitate')" />
-        <x-ui.input type="text" name="street" value="{{ old('street') }}" required :placeholder="__('Stradă')" />
-        <x-ui.input type="text" name="street_number" value="{{ old('street_number') }}" required :placeholder="__('Număr')" />
-        <x-ui.input type="text" name="postal_code" value="{{ old('postal_code') }}" :placeholder="__('Cod poștal')" />
-        <x-ui.input type="text" name="details" value="{{ old('details') }}" :placeholder="__('Bloc, scară, apartament')" />
-        <button class="{{ $button }}" type="submit">{{ __('Adaugă adresa') }}</button>
-    </form>
+<x-account-page :title="__('Adresele mele')" current="addresses">
+    <div class="space-y-3">
+        @foreach ($user->addresses as $address)
+            <article class="flex gap-3 rounded-lg border border-[#ededed] bg-white p-4 shadow-sm">
+                <svg class="mt-0.5 h-6 w-6 shrink-0 text-link" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z"/>
+                </svg>
+                <div class="min-w-0">
+                    <p class="font-semibold text-[#222222]">{{ $user->name }}@if ($user->phone) - {{ $user->phone }}@endif</p>
+                    <p class="mt-1 text-sm text-[#222222]">{{ $address->cardLine() }}</p>
+                    <div class="mt-3 flex items-center gap-4 text-sm">
+                        <x-account-modal :title="__('Editează adresa')" :label="__('editează')" trigger-class="text-sm text-link underline" :open="$errors->any() && (string) old('address_form') === (string) $address->id">
+                            <form class="space-y-3" method="post" action="{{ route('account.addresses.update', $address) }}">
+                                @csrf
+                                <input type="hidden" name="address_form" value="{{ $address->id }}">
+                                @include('account.partials.address-fields', ['address' => $address, 'counties' => $counties])
+                                <button class="inline-flex h-9 items-center justify-center rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground" type="submit">{{ __('Salvează') }}</button>
+                            </form>
+                        </x-account-modal>
+                        <form method="post" action="{{ route('account.addresses.delete', $address) }}">
+                            @csrf
+                            @method('DELETE')
+                            <button class="text-sm text-link underline" type="submit">{{ __('șterge') }}</button>
+                        </form>
+                    </div>
+                </div>
+            </article>
+        @endforeach
+    </div>
+    <div class="mt-4">
+        <x-account-modal :title="__('Adaugă adresa')" :label="__('Adaugă adresa')" :open="$errors->any() && old('address_form') === 'new'">
+            <form class="space-y-3" method="post" action="{{ route('account.addresses.store') }}">
+                @csrf
+                <input type="hidden" name="address_form" value="new">
+                @include('account.partials.address-fields', ['address' => null, 'counties' => $counties])
+                <button class="inline-flex h-9 items-center justify-center rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground" type="submit">{{ __('Salvează') }}</button>
+            </form>
+        </x-account-modal>
+    </div>
 </x-account-page>

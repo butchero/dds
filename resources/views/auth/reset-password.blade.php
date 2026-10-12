@@ -1,4 +1,4 @@
-<x-site-layout :title="__('Parolă nouă')" :breadcrumbs="\App\Support\Breadcrumbs::forPage(__('Parolă nouă'))">
+<x-site-layout :title="__('Parolă nouă')" :breadcrumbs="\App\Support\Breadcrumbs::forPage(__('Parolă nouă'))" :index="false">
     <h1 class="mb-2 text-lg font-medium tracking-tight text-brand">{{ __('Parolă nouă') }}</h1>
     <form class="max-w-sm space-y-3" method="post" action="{{ route('password.update') }}">
         @csrf

@@ -5,22 +5,40 @@
 <x-account-page :title="__('Datele mele')" current="profile">
     <form class="max-w-sm space-y-3" method="post" action="{{ route('account.profile') }}">
         @csrf
-        <x-ui.input type="text" name="name" value="{{ old('name', $user->name) }}" required :placeholder="__('Nume')" />
-        <x-ui.input type="email" name="email" value="{{ old('email', $user->email) }}" required :placeholder="__('Email')" />
+        <label class="block text-sm">
+            <span class="mb-1 block">{{ __('Nume') }}</span>
+            <x-ui.input type="text" name="name" value="{{ old('name', $user->name) }}" required />
+        </label>
+        <label class="block text-sm">
+            <span class="mb-1 block">{{ __('E-mail') }}</span>
+            <x-ui.input type="email" name="email" value="{{ old('email', $user->email) }}" required />
+        </label>
         <button class="{{ $button }}" type="submit">{{ __('Salvează datele') }}</button>
     </form>
-    <form class="mt-4 max-w-sm space-y-3" method="post" action="{{ route('account.phone') }}">
+    <form class="mt-6 max-w-sm space-y-3" method="post" action="{{ route('account.phone') }}">
         @csrf
-        <x-ui.input type="text" name="phone" value="{{ old('phone', $user->phone) }}" required :placeholder="__('Telefon')" />
+        <label class="block text-sm">
+            <span class="mb-1 block">{{ __('Telefon') }}</span>
+            <x-ui.input type="text" name="phone" value="{{ old('phone', $user->phone) }}" required />
+        </label>
         <button class="{{ $button }}" type="submit">{{ __('Confirmă telefonul') }}</button>
     </form>
-    <form class="mt-4 max-w-sm space-y-3" method="post" action="{{ route('account.password') }}">
+    <form class="mt-6 max-w-sm space-y-3" method="post" action="{{ route('account.password') }}">
         @csrf
         @if (filled($user->password))
-            <x-ui.input type="password" name="current_password" required :placeholder="__('Parola actuală')" />
+            <label class="block text-sm">
+                <span class="mb-1 block">{{ __('Parola actuală') }}</span>
+                <x-ui.input type="password" name="current_password" required />
+            </label>
         @endif
-        <x-ui.input type="password" name="password" required :placeholder="__('Parolă nouă')" />
-        <x-ui.input type="password" name="password_confirmation" required :placeholder="__('Confirma parola')" />
+        <label class="block text-sm">
+            <span class="mb-1 block">{{ __('Parolă nouă') }}</span>
+            <x-ui.input type="password" name="password" required />
+        </label>
+        <label class="block text-sm">
+            <span class="mb-1 block">{{ __('Confirmă parola') }}</span>
+            <x-ui.input type="password" name="password_confirmation" required />
+        </label>
         <button class="{{ $button }}" type="submit">{{ __('Schimbă parola') }}</button>
     </form>
 </x-account-page>

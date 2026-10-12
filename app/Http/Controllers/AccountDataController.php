@@ -17,7 +17,7 @@ class AccountDataController extends Controller
     {
         $request->user()->addresses()->create($this->addressData($request));
 
-        return back()->with('status', 'Adresa a fost adăugată.');
+        return back()->with('status', __('Adresa a fost adăugată.'));
     }
 
     public function updateAddress(Request $request, Address $address): RedirectResponse
@@ -25,7 +25,7 @@ class AccountDataController extends Controller
         abort_unless($address->user_id === $request->user()->id, 403);
         $address->update($this->addressData($request));
 
-        return back()->with('status', 'Adresa a fost salvată.');
+        return back()->with('status', __('Adresa a fost salvată.'));
     }
 
     public function deleteAddress(Request $request, Address $address): RedirectResponse
@@ -38,14 +38,14 @@ class AccountDataController extends Controller
             return back()->withErrors($exception->errors());
         }
 
-        return back()->with('status', 'Adresa a fost ștearsă.');
+        return back()->with('status', __('Adresa a fost ștearsă.'));
     }
 
     public function storeEquipment(Request $request): RedirectResponse
     {
         $request->user()->equipment()->create($this->equipmentData($request));
 
-        return back()->with('status', 'Echipamentul a fost adăugat.');
+        return back()->with('status', __('Echipamentul a fost adăugat.'));
     }
 
     public function updateEquipment(Request $request, Equipment $equipment): RedirectResponse
@@ -53,7 +53,7 @@ class AccountDataController extends Controller
         abort_unless($equipment->user_id === $request->user()->id, 403);
         $equipment->update($this->equipmentData($request));
 
-        return back()->with('status', 'Echipamentul a fost salvat.');
+        return back()->with('status', __('Echipamentul a fost salvat.'));
     }
 
     public function deleteEquipment(Request $request, Equipment $equipment): RedirectResponse
@@ -61,14 +61,14 @@ class AccountDataController extends Controller
         abort_unless($equipment->user_id === $request->user()->id, 403);
         $equipment->delete();
 
-        return back()->with('status', 'Echipamentul a fost șters.');
+        return back()->with('status', __('Echipamentul a fost șters.'));
     }
 
     public function storeBilling(Request $request): RedirectResponse
     {
         $request->user()->billingProfiles()->create($this->billingData($request));
 
-        return back()->with('status', 'Profilul de facturare a fost adăugat.');
+        return back()->with('status', __('Profilul de facturare a fost adăugat.'));
     }
 
     public function updateBilling(Request $request, BillingProfile $billingProfile): RedirectResponse
@@ -76,7 +76,7 @@ class AccountDataController extends Controller
         abort_unless($billingProfile->user_id === $request->user()->id, 403);
         $billingProfile->update($this->billingData($request));
 
-        return back()->with('status', 'Profilul de facturare a fost salvat.');
+        return back()->with('status', __('Profilul de facturare a fost salvat.'));
     }
 
     public function deleteBilling(Request $request, BillingProfile $billingProfile): RedirectResponse
@@ -89,7 +89,7 @@ class AccountDataController extends Controller
             return back()->withErrors($exception->errors());
         }
 
-        return back()->with('status', 'Profilul de facturare a fost șters.');
+        return back()->with('status', __('Profilul de facturare a fost șters.'));
     }
 
     /**
@@ -128,7 +128,7 @@ class AccountDataController extends Controller
 
         if (! $user->addresses()->whereKey($data['address_id'])->exists()) {
             throw ValidationException::withMessages([
-                'address_id' => 'Alege una dintre adresele tale.',
+                'address_id' => __('Alege una dintre adresele tale.'),
             ]);
         }
 
@@ -172,7 +172,7 @@ class AccountDataController extends Controller
 
             if (! $source) {
                 throw ValidationException::withMessages([
-                    'copy_address_id' => 'Alege una dintre adresele tale.',
+                    'copy_address_id' => __('Alege una dintre adresele tale.'),
                 ]);
             }
 

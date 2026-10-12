@@ -31,7 +31,7 @@ return [
     'sms' => [
         'driver' => env('SMS_DRIVER', 'log'),
         'url' => env('SMS_URL'),
-        'from' => env('SMS_FROM', 'DDS'),
+        'from' => env('SMS_FROM', ''),
     ],
 
     'google' => [

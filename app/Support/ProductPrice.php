@@ -68,7 +68,14 @@ class ProductPrice
         $fraction = substr(str_pad($fraction, 2, '0'), 0, 2);
         $wholeWithSeparator = preg_replace('/\B(?=(\d{3})+(?!\d))/', '.', $whole) ?: '0';
 
-        return ($negative ? '-' : '').$wholeWithSeparator.','.$fraction.' lei';
+        $suffix = rescue(
+            fn (): string => (string) SiteSetting::get('currency_suffix'),
+            (string) SiteSetting::definitions()['currency_suffix']['default'],
+            report: false,
+        );
+        $suffixPart = filled($suffix) ? ' '.$suffix : '';
+
+        return ($negative ? '-' : '').$wholeWithSeparator.','.$fraction.$suffixPart;
     }
 
     private static function formatRate(string $rate): string

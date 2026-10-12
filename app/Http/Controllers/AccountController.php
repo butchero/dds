@@ -38,7 +38,7 @@ class AccountController extends Controller
         ]);
 
         if (! Auth::attempt($credentials, true)) {
-            return back()->withErrors(['email' => 'Datele de autentificare nu sunt corecte.'])->onlyInput('email');
+            return back()->withErrors(['email' => __('Datele de autentificare nu sunt corecte.')])->onlyInput('email');
         }
 
         $request->session()->regenerate();
@@ -65,7 +65,7 @@ class AccountController extends Controller
 
         if ($existing && ! $existing->isUnclaimed()) {
             throw ValidationException::withMessages([
-                'phone' => 'Acest telefon este deja folosit.',
+                'phone' => __('Acest telefon este deja folosit.'),
             ]);
         }
 
@@ -76,7 +76,7 @@ class AccountController extends Controller
 
         if ($emailTaken) {
             throw ValidationException::withMessages([
-                'email' => 'Această adresă de e-mail este deja folosită.',
+                'email' => __('Această adresă de e-mail este deja folosită.'),
             ]);
         }
 
@@ -100,74 +100,6 @@ class AccountController extends Controller
 
         event(new Registered($user));
         Auth::login($user);
-
-        return redirect()->route('verification.notice');
-    }
-
-    public function claim(): View
-    {
-        return view('auth.claim');
-    }
-
-    public function startClaim(Request $request): RedirectResponse
-    {
-        $data = $request->validate([
-            'phone' => ['required', 'string', 'max:30'],
-        ]);
-
-        $phone = $this->phone($data['phone']);
-        $user = User::query()->where('phone', $phone)->first();
-
-        if (! $user) {
-            throw ValidationException::withMessages([
-                'phone' => 'Nu găsim acest număr. Poți crea un cont nou.',
-            ]);
-        }
-
-        if (! $user->isUnclaimed()) {
-            throw ValidationException::withMessages([
-                'phone' => 'Acest număr are deja un cont. Autentifică-te.',
-            ]);
-        }
-
-        PhoneConfirmation::begin($phone, 'claim', [
-            'user_id' => $user->id,
-            'name' => $user->name,
-        ]);
-
-        return redirect()->route('phone.confirm');
-    }
-
-    public function finishClaim(): View
-    {
-        $pending = $this->confirmedClaim();
-
-        return view('auth.claim-finish', [
-            'name' => $pending['payload']['name'] ?? '',
-        ]);
-    }
-
-    public function storeClaim(Request $request): RedirectResponse
-    {
-        $pending = $this->confirmedClaim();
-        $user = User::query()->findOrFail($pending['payload']['user_id'] ?? 0);
-        abort_unless($user->isUnclaimed(), 403);
-
-        $data = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
-            'password' => ['required', 'confirmed', PasswordRule::defaults()],
-        ]);
-
-        $user->forceFill([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => $data['password'],
-            'role' => 'client',
-        ])->save();
-
-        Auth::login($user);
-        PhoneConfirmation::forget();
 
         return redirect()->route('verification.notice');
     }
@@ -222,10 +154,65 @@ class AccountController extends Controller
             'appointments.equipment',
         ]);
 
+        $individualProfiles = $user->billingProfiles->where('type', 'individual')->values();
+        $companyProfiles = $user->billingProfiles->where('type', 'company')->values();
+
         return view('account.appointments', [
             'user' => $user,
-            'individualProfiles' => $user->billingProfiles->where('type', 'individual')->values(),
-            'companyProfiles' => $user->billingProfiles->where('type', 'company')->values(),
+            'booking' => [
+                'action' => route('account.appointment'),
+                'csrf' => csrf_token(),
+                'addresses' => $user->addresses->map(fn ($address): array => [
+                    'id' => $address->id,
+                    'label' => $address->cardLine(),
+                ])->values(),
+                'equipment' => $user->equipment->map(fn ($item): array => [
+                    'id' => $item->id,
+                    'address_id' => $item->address_id,
+                    'label' => $item->name,
+                ])->values(),
+                'individuals' => $individualProfiles->map(fn ($profile): array => [
+                    'id' => $profile->id,
+                    'label' => $profile->displayName(),
+                ])->values(),
+                'companies' => $companyProfiles->map(fn ($profile): array => [
+                    'id' => $profile->id,
+                    'label' => $profile->displayName(),
+                ])->values(),
+                'links' => [
+                    'addresses' => route('account.addresses'),
+                    'equipment' => route('account.equipment'),
+                    'billing' => route('account.billing'),
+                ],
+                'copy' => [
+                    'noAddressTitle' => __('Nu ai nicio adresă'),
+                    'noAddressText' => __('Adaugă adresa intervenției înainte să trimiți cererea.'),
+                    'noAddressLink' => __('Adaugă adresa'),
+                    'noEquipmentTitle' => __('Nu ai niciun echipament'),
+                    'noEquipmentText' => __('Adaugă-l înainte să trimiți cererea.'),
+                    'noEquipmentLink' => __('Adaugă echipamentul'),
+                    'noBillingTitle' => __('Nu ai date de facturare'),
+                    'noBillingText' => __('Adaugă o persoană sau o firmă înainte să trimiți cererea.'),
+                    'noBillingLink' => __('Adaugă facturarea'),
+                    'missingProfileTitle' => __('Lipsește profilul ales'),
+                    'missingProfileText' => __('Pentru tipul de facturare ales nu ai încă un profil.'),
+                    'noEquipmentHereTitle' => __('La adresa aleasă nu ai echipament'),
+                    'noEquipmentHereText' => __('Adaugă echipamentul la această adresă, sau alege altă adresă.'),
+                    'address' => __('Adresă'),
+                    'chooseAddress' => __('Alege adresa'),
+                    'billingType' => __('Tip facturare'),
+                    'individual' => __('Persoană fizică'),
+                    'company' => __('Persoană juridică'),
+                    'companyLabel' => __('Firmă'),
+                    'personLabel' => __('Persoană'),
+                    'choose' => __('Alege'),
+                    'equipment' => __('Echipament'),
+                    'chooseEquipment' => __('Alege echipamentul'),
+                    'requestedOn' => __('Data dorită'),
+                    'note' => __('Observații'),
+                    'submit' => __('Trimite cererea'),
+                ],
+            ],
         ]);
     }
 
@@ -243,7 +230,7 @@ class AccountController extends Controller
             return redirect()->route('verification.notice');
         }
 
-        return back()->with('status', 'Datele au fost salvate.');
+        return back()->with('status', __('Datele au fost salvate.'));
     }
 
     public function updatePassword(Request $request): RedirectResponse
@@ -259,7 +246,7 @@ class AccountController extends Controller
         $data = $request->validate($rules);
         $request->user()->update(['password' => $data['password']]);
 
-        return back()->with('status', 'Parola a fost schimbată.');
+        return back()->with('status', __('Parola a fost schimbată.'));
     }
 
     public function updatePhone(Request $request): RedirectResponse
@@ -272,14 +259,14 @@ class AccountController extends Controller
         $user = $request->user();
 
         if ($user->phone === $phone) {
-            return back()->with('status', 'Telefonul este deja salvat.');
+            return back()->with('status', __('Telefonul este deja salvat.'));
         }
 
         $existing = User::query()->where('phone', $phone)->whereKeyNot($user->id)->first();
 
         if ($existing && ! $existing->isUnclaimed()) {
             throw ValidationException::withMessages([
-                'phone' => 'Acest telefon este deja folosit.',
+                'phone' => __('Acest telefon este deja folosit.'),
             ]);
         }
 
@@ -298,7 +285,7 @@ class AccountController extends Controller
             'billing_type' => ['required', Rule::in(['individual', 'company'])],
             'individual_profile_id' => ['nullable', 'integer'],
             'company_profile_id' => ['nullable', 'integer'],
-            'equipment_id' => ['nullable', 'integer'],
+            'equipment_id' => ['required', 'integer'],
             'requested_on' => ['nullable', 'date'],
             'note' => ['nullable', 'string', 'max:2000'],
         ]);
@@ -307,7 +294,7 @@ class AccountController extends Controller
 
         if (! $address) {
             throw ValidationException::withMessages([
-                'address_id' => 'Alege una dintre adresele tale.',
+                'address_id' => __('Alege una dintre adresele tale.'),
             ]);
         }
 
@@ -315,7 +302,7 @@ class AccountController extends Controller
 
         if ($profiles->isEmpty()) {
             throw ValidationException::withMessages([
-                'billing_type' => 'Adaugă mai întâi un profil de facturare de tipul ales.',
+                'billing_type' => __('Adaugă mai întâi un profil de facturare de tipul ales.'),
             ]);
         }
 
@@ -329,27 +316,23 @@ class AccountController extends Controller
 
         if (! $profile instanceof BillingProfile) {
             throw ValidationException::withMessages([
-                'billing_type' => 'Alege profilul de facturare.',
+                'billing_type' => __('Alege profilul de facturare.'),
             ]);
         }
 
-        $equipmentId = ($data['equipment_id'] ?? null) ?: null;
+        $equipment = $user->equipment()->whereKey($data['equipment_id'])->first();
 
-        if ($equipmentId) {
-            $equipment = $user->equipment()->whereKey($equipmentId)->first();
-
-            if (! $equipment instanceof Equipment || (int) $equipment->address_id !== (int) $address->id) {
-                throw ValidationException::withMessages([
-                    'equipment_id' => 'Echipamentul trebuie să fie la adresa aleasă.',
-                ]);
-            }
+        if (! $equipment instanceof Equipment || (int) $equipment->address_id !== (int) $address->id) {
+            throw ValidationException::withMessages([
+                'equipment_id' => __('Alege un echipament de la adresa intervenției. Dacă nu îl ai încă, adaugă-l întâi.'),
+            ]);
         }
 
         $appointment = Appointment::query()->create([
             'user_id' => $user->id,
             'address_id' => $address->id,
             'billing_profile_id' => $profile->id,
-            'equipment_id' => $equipmentId,
+            'equipment_id' => $equipment->id,
             'requested_on' => $data['requested_on'] ?? null,
             'note' => $data['note'] ?? null,
             'status' => 'requested',
@@ -361,7 +344,7 @@ class AccountController extends Controller
             Notification::route('mail', $companyEmail)->notify(new AppointmentRequestedNotification($appointment));
         }
 
-        return redirect()->route('account.appointments')->with('status', 'Cererea de programare a fost trimisă.');
+        return redirect()->route('account.appointments')->with('status', __('Cererea de programare a fost trimisă.'));
     }
 
     public function sendResetLink(Request $request): RedirectResponse
@@ -374,15 +357,15 @@ class AccountController extends Controller
 
         if ($user && ! $user->hasVerifiedEmail()) {
             return back()->withErrors([
-                'email' => 'Confirmă mai întâi adresa de e-mail.',
+                'email' => __('Confirmă mai întâi adresa de e-mail.'),
             ])->onlyInput('email');
         }
 
         $status = Password::sendResetLink($data);
 
         return $status === Password::ResetLinkSent
-            ? back()->with('status', 'Ți-am trimis un mesaj cu linkul de resetare.')
-            : back()->withErrors(['email' => 'Nu am putut trimite linkul. Verifică adresa.'])->onlyInput('email');
+            ? back()->with('status', __('Ți-am trimis un mesaj cu linkul de resetare.'))
+            : back()->withErrors(['email' => __('Nu am putut trimite linkul. Verifică adresa.')])->onlyInput('email');
     }
 
     public function resetPassword(Request $request): RedirectResponse
@@ -406,8 +389,8 @@ class AccountController extends Controller
         );
 
         return $status === Password::PasswordReset
-            ? redirect()->route('login')->with('status', 'Parola a fost resetată.')
-            : back()->withErrors(['email' => 'Linkul de resetare nu mai este valabil.']);
+            ? redirect()->route('login')->with('status', __('Parola a fost resetată.'))
+            : back()->withErrors(['email' => __('Linkul de resetare nu mai este valabil.')]);
     }
 
     public function logout(Request $request): RedirectResponse
@@ -429,21 +412,10 @@ class AccountController extends Controller
 
         if ($phone === null) {
             throw ValidationException::withMessages([
-                'phone' => 'Telefonul trebuie să fie un număr de mobil din România.',
+                'phone' => __('Telefonul trebuie să fie un număr de mobil din România.'),
             ]);
         }
 
         return $phone;
-    }
-
-    /**
-     * @return array{phone: string, purpose: string, payload: array<string, mixed>, confirmed: bool, expires_at: int}
-     */
-    private function confirmedClaim(): array
-    {
-        $pending = PhoneConfirmation::pending();
-        abort_unless($pending && $pending['purpose'] === 'claim' && $pending['confirmed'], 403);
-
-        return $pending;
     }
 }

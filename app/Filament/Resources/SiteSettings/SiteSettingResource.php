@@ -20,22 +20,34 @@ class SiteSettingResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static ?string $navigationLabel = 'Meniul principal';
-
-    protected static ?string $modelLabel = 'setare';
-
-    protected static ?string $pluralModelLabel = 'Meniu';
-
-    protected static string|\UnitEnum|null $navigationGroup = 'Conținut';
-
     protected static ?string $recordTitleAttribute = 'value';
+
+    public static function getNavigationLabel(): string
+    {
+        return __('Meniul principal');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('setare');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('Meniu');
+    }
+
+    public static function getNavigationGroup(): string|\UnitEnum|null
+    {
+        return __('Conținut');
+    }
 
     public static function form(Schema $schema): Schema
     {
         return $schema
             ->components([
                 Select::make('value')
-                    ->label('Poziție pe desktop')
+                    ->label(__('Poziție pe desktop'))
                     ->options(self::menuPositions())
                     ->helperText(fn (?SiteSetting $record): string => $record?->description
                         ?: SiteSetting::definitions()['menu_position']['description'])
@@ -50,16 +62,16 @@ class SiteSettingResource extends Resource
             ->recordTitleAttribute('value')
             ->columns([
                 TextColumn::make('value')
-                    ->label('Poziție pe desktop')
+                    ->label(__('Poziție pe desktop'))
                     ->formatStateUsing(fn (string $state): string => self::menuPositions()[$state] ?? $state)
                     ->searchable(),
                 TextColumn::make('created_at')
-                    ->label('Creat la')
+                    ->label(__('Creat la'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
-                    ->label('Actualizat la')
+                    ->label(__('Actualizat la'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -86,8 +98,8 @@ class SiteSettingResource extends Resource
     public static function menuPositions(): array
     {
         return [
-            'top' => 'Sus, lângă siglă',
-            'left' => 'Stânga, deasupra categoriilor',
+            'top' => __('Sus, lângă siglă'),
+            'left' => __('Stânga, deasupra categoriilor'),
         ];
     }
 

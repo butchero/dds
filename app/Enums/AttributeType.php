@@ -13,11 +13,11 @@ enum AttributeType: string
     public function label(): string
     {
         return match ($this) {
-            self::Text => 'Text',
-            self::Number => 'Număr',
-            self::Boolean => 'Da / Nu',
-            self::Select => 'Listă',
-            self::Multiselect => 'Listă multiplă',
+            self::Text => __('Text'),
+            self::Number => __('Număr'),
+            self::Boolean => __('Da / Nu'),
+            self::Select => __('Listă'),
+            self::Multiselect => __('Listă multiplă'),
         };
     }
 

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\AccountDataController;
+use App\Http\Controllers\ContactController;
 use App\Http\Controllers\PhoneConfirmationController;
 use App\Http\Controllers\SiteController;
 use App\Http\Controllers\SocialAuthController;
@@ -14,8 +15,13 @@ Route::view('/politica-de-cookies', 'legal.cookies')->name('cookies');
 
 Route::get('/', [SiteController::class, 'home'])->name('home');
 Route::get('/cauta', [SiteController::class, 'search'])->name('search');
+Route::get('/producator/{manufacturer}', [SiteController::class, 'manufacturer'])->name('manufacturer');
 Route::get('/categorie/{productCategory}', [SiteController::class, 'category'])->name('category');
 Route::get('/produs/{product}', [SiteController::class, 'product'])->name('product');
+Route::permanentRedirect('/servicii/contact', '/contact');
+Route::get('/contact', [ContactController::class, 'show'])->name('contact');
+Route::post('/contact', [ContactController::class, 'store'])->middleware('throttle:5,1')->name('contact.store');
+Route::get('/contact/verificare', [ContactController::class, 'challenge'])->name('contact.challenge');
 Route::get('/servicii/{service}', [SiteController::class, 'service'])->name('service');
 Route::get('/stiri/{news}', [SiteController::class, 'news'])->name('news');
 
@@ -24,8 +30,6 @@ Route::middleware('guest')->group(function () {
     Route::post('/cont/autentificare', [AccountController::class, 'authenticate']);
     Route::get('/cont/inregistrare', [AccountController::class, 'register'])->name('register');
     Route::post('/cont/inregistrare', [AccountController::class, 'store']);
-    Route::get('/cont/revendicare', [AccountController::class, 'claim'])->name('claim');
-    Route::post('/cont/revendicare', [AccountController::class, 'startClaim']);
     Route::get('/cont/parola', fn () => view('auth.forgot-password'))->name('password.request');
     Route::post('/cont/parola', [AccountController::class, 'sendResetLink'])->name('password.email');
     Route::get('/cont/resetare/{token}', fn (string $token) => view('auth.reset-password', [
@@ -37,8 +41,6 @@ Route::middleware('guest')->group(function () {
 
 Route::get('/cont/telefon', [PhoneConfirmationController::class, 'show'])->name('phone.confirm');
 Route::post('/cont/telefon', [PhoneConfirmationController::class, 'store']);
-Route::get('/cont/revendicare/finalizeaza', [AccountController::class, 'finishClaim'])->name('claim.finish');
-Route::post('/cont/revendicare/finalizeaza', [AccountController::class, 'storeClaim']);
 Route::get('/cont/auth/{provider}', [SocialAuthController::class, 'redirect'])->name('social.redirect');
 Route::get('/cont/auth/{provider}/callback', [SocialAuthController::class, 'callback'])->name('social.callback');
 

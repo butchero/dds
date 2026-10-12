@@ -26,38 +26,50 @@ class BannerResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static ?string $navigationLabel = 'Bannere';
-
-    protected static ?string $modelLabel = 'banner';
-
-    protected static ?string $pluralModelLabel = 'Bannere';
-
-    protected static string|\UnitEnum|null $navigationGroup = 'Conținut';
-
     protected static ?string $recordTitleAttribute = 'title';
+
+    public static function getNavigationLabel(): string
+    {
+        return __('Bannere');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('banner');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('Bannere');
+    }
+
+    public static function getNavigationGroup(): string|\UnitEnum|null
+    {
+        return __('Conținut');
+    }
 
     public static function form(Schema $schema): Schema
     {
         return $schema
             ->components([
                 TextInput::make('title')
-                    ->label('Titlu')
+                    ->label(__('Titlu'))
                     ->required(),
                 FileUpload::make('image')
-                    ->label('Imagine')
+                    ->label(__('Imagine'))
                     ->image()
                     ->disk('public')
                     ->directory('banners')
                     ->required(),
                 TextInput::make('link')
-                    ->label('Adresă'),
+                    ->label(__('Adresă')),
                 TextInput::make('sort')
-                    ->label('Ordine')
+                    ->label(__('Ordine'))
                     ->required()
                     ->numeric()
                     ->default(0),
                 Toggle::make('is_published')
-                    ->label('Publicat')
+                    ->label(__('Publicat'))
                     ->required(),
             ]);
     }
@@ -68,28 +80,28 @@ class BannerResource extends Resource
             ->recordTitleAttribute('title')
             ->columns([
                 TextColumn::make('title')
-                    ->label('Titlu')
+                    ->label(__('Titlu'))
                     ->searchable(),
                 ImageColumn::make('image')
-                    ->label('Imagine')
+                    ->label(__('Imagine'))
                     ->disk('public'),
                 TextColumn::make('link')
-                    ->label('Adresă')
+                    ->label(__('Adresă'))
                     ->searchable(),
                 TextColumn::make('sort')
-                    ->label('Ordine')
+                    ->label(__('Ordine'))
                     ->numeric()
                     ->sortable(),
                 IconColumn::make('is_published')
-                    ->label('Publicat')
+                    ->label(__('Publicat'))
                     ->boolean(),
                 TextColumn::make('created_at')
-                    ->label('Creat la')
+                    ->label(__('Creat la'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
-                    ->label('Actualizat la')
+                    ->label(__('Actualizat la'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

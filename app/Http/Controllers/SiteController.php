@@ -2,25 +2,40 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Manufacturer;
 use App\Models\News;
 use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\Service;
+use App\Models\SiteSetting;
 use App\Support\Breadcrumbs;
 use App\Support\CategoryListing;
+use App\Support\PageMeta;
 use App\Support\SiteCatalog;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\View\View;
 
 class SiteController extends Controller
 {
-    private const string CATALOG_LAYOUT_COOKIE = 'dds_catalog_layout';
+    private const string CATALOG_LAYOUT_COOKIE = 'catalog_layout';
 
     public function home(): View
     {
         return view('home', [
+            'heading' => SiteSetting::get('home_heading'),
             'banners' => SiteCatalog::banners(),
+            'brands' => Manufacturer::query()
+                ->whereNotNull('logo')
+                ->orderBy('name')
+                ->get()
+                ->map(fn (Manufacturer $manufacturer): array => [
+                    'name' => $manufacturer->name,
+                    'src' => $manufacturer->logo_url,
+                    'slug' => $manufacturer->slug,
+                ])
+                ->all(),
             'products' => Product::query()
                 ->with(['category', 'values.attribute', 'selectedOptions.attribute'])
                 ->where('is_published', true)
@@ -30,22 +45,47 @@ class SiteController extends Controller
         ]);
     }
 
-    public function search(Request $request): View
+    public function search(Request $request): View|RedirectResponse
     {
-        $term = (string) $request->string('s');
         $maker = (string) $request->string('producator');
 
-        $title = $maker !== '' ? $maker : __('Cautare: :term', ['term' => $term]);
+        if ($maker !== '') {
+            $manufacturer = Manufacturer::query()->where('name', $maker)->firstOrFail();
+
+            return redirect()->route('manufacturer', $manufacturer, 301);
+        }
+
+        $term = (string) $request->string('s');
+        $title = __('Cautare: :term', ['term' => $term]);
 
         return view('products', [
             'title' => $title,
+            'description' => __('Rezultate pentru :term.', ['term' => $term]),
+            'canonical' => $request->fullUrl(),
             'breadcrumbs' => Breadcrumbs::forPage($title),
             'catalogLayout' => $this->catalogLayout($request),
             'products' => Product::query()
                 ->with(['category', 'values.attribute', 'selectedOptions.attribute'])
                 ->where('is_published', true)
-                ->when($maker !== '', fn ($query) => $query->where('manufacturer', $maker))
                 ->when($term !== '', fn ($query) => $query->where('name', 'like', '%'.$term.'%'))
+                ->orderBy('name')
+                ->get(),
+        ]);
+    }
+
+    public function manufacturer(Request $request, Manufacturer $manufacturer): View
+    {
+        $title = $manufacturer->name;
+
+        return view('products', [
+            'title' => $title,
+            'description' => __('Produse :maker.', ['maker' => $manufacturer->name]),
+            'canonical' => route('manufacturer', $manufacturer),
+            'breadcrumbs' => Breadcrumbs::forPage($title),
+            'catalogLayout' => $this->catalogLayout($request),
+            'products' => $manufacturer->products()
+                ->with(['category', 'values.attribute', 'selectedOptions.attribute'])
+                ->where('is_published', true)
                 ->orderBy('name')
                 ->get(),
         ]);
@@ -85,6 +125,7 @@ class SiteController extends Controller
 
         return view('products', [
             'title' => $productCategory->name,
+            'description' => $productCategory->description,
             'breadcrumbs' => Breadcrumbs::forCategory($productCategory),
             'products' => $listing['products'],
             'category' => $productCategory,
@@ -99,10 +140,29 @@ class SiteController extends Controller
 
         $product->load(['values.attribute', 'selectedOptions.attribute', 'images']);
 
+        $specifications = $product->specifications();
+        $images = $product->images->pluck('url')->filter()->values();
+
+        if ($images->isEmpty() && filled($product->image_url)) {
+            $images = collect([$product->image_url]);
+        }
+
         return view('product', [
             'product' => $product,
             'breadcrumbs' => Breadcrumbs::forProduct($product),
-            'specifications' => $product->specifications(),
+            'gallery' => [
+                'name' => $product->name,
+                'images' => $images->all(),
+                'description' => $product->description ?: ($product->excerpt ?? ''),
+                'specifications' => $specifications->all(),
+                'labels' => [
+                    'enlarge' => __('Mărește fotografia'),
+                    'previous' => __('Fotografia anterioară'),
+                    'next' => __('Fotografia următoare'),
+                    'description' => __('Descriere'),
+                    'specifications' => __('Caracteristici'),
+                ],
+            ],
         ]);
     }
 
@@ -112,6 +172,8 @@ class SiteController extends Controller
 
         return view('content', [
             'title' => $service->name,
+            'description' => PageMeta::descriptionFromBlocks($service->blocks),
+            'image' => PageMeta::imageFromBlocks($service->blocks),
             'breadcrumbs' => Breadcrumbs::forPage($service->name),
             'blocks' => $service->blocksForPublic(),
         ]);
@@ -123,6 +185,9 @@ class SiteController extends Controller
 
         return view('content', [
             'title' => $news->title,
+            'description' => $news->excerpt ?: PageMeta::descriptionFromBlocks($news->blocks),
+            'image' => $news->image,
+            'type' => 'article',
             'breadcrumbs' => Breadcrumbs::forPage($news->title),
             'excerpt' => $news->excerpt,
             'blocks' => $news->blocksForPublic(),

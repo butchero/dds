@@ -18,11 +18,11 @@ class ClientImporter extends Importer
     {
         return [
             ImportColumn::make('name')
-                ->label('Nume')
+                ->label(__('Nume'))
                 ->requiredMapping()
                 ->rules(['required', 'string', 'max:255']),
             ImportColumn::make('phone')
-                ->label('Telefon')
+                ->label(__('Telefon'))
                 ->requiredMapping()
                 ->castStateUsing(function (mixed $state): mixed {
                     if (blank($state)) {
@@ -33,7 +33,7 @@ class ClientImporter extends Importer
                 })
                 ->rules(['required', 'regex:/^07\d{8}$/']),
             ImportColumn::make('email')
-                ->label('E-mail')
+                ->label(__('E-mail'))
                 ->ignoreBlankState()
                 ->rules(['nullable', 'email', 'max:255']),
         ];
@@ -80,16 +80,22 @@ class ClientImporter extends Importer
             ->exists();
 
         if ($taken) {
-            throw new RowImportFailedException('E-mailul este deja folosit.');
+            throw new RowImportFailedException(__('E-mailul este deja folosit.'));
         }
     }
 
     public static function getCompletedNotificationBody(Import $import): string
     {
-        $body = 'Importul s-a terminat: '.Number::format($import->successful_rows).' '.str('rând')->plural($import->successful_rows).' importate.';
+        $body = __('Importul s-a terminat: :count :rows importate.', [
+            'count' => Number::format($import->successful_rows),
+            'rows' => str('rând')->plural($import->successful_rows),
+        ]);
 
         if ($failedRowsCount = $import->getFailedRowsCount()) {
-            $body .= ' '.Number::format($failedRowsCount).' '.str('rând')->plural($failedRowsCount).' au eșuat.';
+            $body .= ' '.__(':count :rows au eșuat.', [
+                'count' => Number::format($failedRowsCount),
+                'rows' => str('rând')->plural($failedRowsCount),
+            ]);
         }
 
         return $body;

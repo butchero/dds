@@ -1,4 +1,4 @@
-<x-site-layout :title="__('Confirmă telefonul')" :breadcrumbs="\App\Support\Breadcrumbs::forPage(__('Confirmă telefonul'))">
+<x-site-layout :title="__('Confirmă telefonul')" :breadcrumbs="\App\Support\Breadcrumbs::forPage(__('Confirmă telefonul'))" :index="false">
     <h1 class="mb-2 text-lg font-medium tracking-tight text-brand">{{ __('Confirmă telefonul') }}</h1>
     <p class="mb-3 max-w-sm text-sm">{{ __('Am trimis un cod la :phone.', ['phone' => $phone]) }}</p>
     <form class="max-w-sm space-y-3" method="post" action="{{ route('phone.confirm') }}">

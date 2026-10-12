@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use App\Models\SiteSetting;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 
@@ -21,6 +22,9 @@ class PhoneCodeNotification extends Notification
 
     public function toSms(object $notifiable): string
     {
-        return 'DDS: codul de confirmare este '.$this->code.'.';
+        return __(':prefix: codul de confirmare este :code.', [
+            'prefix' => SiteSetting::get('sms_sender_prefix'),
+            'code' => $this->code,
+        ]);
     }
 }

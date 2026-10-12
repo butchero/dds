@@ -24,4 +24,14 @@ class AccountControllerTest extends TestCase
             ])
             ->assertSee('Datele de autentificare nu sunt corecte.');
     }
+
+    public function test_imported_number_claim_is_not_available(): void
+    {
+        $this->get(route('login'))->assertDontSee('Am deja număr la DDS');
+        $this->get(route('register'))->assertDontSee('Am deja număr la DDS');
+        $this->get('/cont/revendicare')->assertNotFound();
+        $this->post('/cont/revendicare', ['phone' => '0722000000'])->assertNotFound();
+        $this->get('/cont/revendicare/finalizeaza')->assertNotFound();
+        $this->post('/cont/revendicare/finalizeaza')->assertNotFound();
+    }
 }

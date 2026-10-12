@@ -1,11 +1,15 @@
 import { createApp } from 'vue/dist/vue.esm-bundler.js';
+import AccountFormDialog from './Components/AccountFormDialog.vue';
+import AppointmentForm from './Components/AppointmentForm.vue';
 import CatalogLayoutToggle from './Components/CatalogLayoutToggle.vue';
+import HeaderAccountLinks from './Components/HeaderAccountLinks.vue';
+import ProductView from './Components/ProductView.vue';
 
-const storageKey = 'dds-cookie-consent';
+const storageKey = 'cookie_consent';
 
 document.querySelectorAll('[data-cookies-open]').forEach((button) => {
     button.addEventListener('click', () => {
-        window.dispatchEvent(new Event('dds-cookies-open'));
+        window.dispatchEvent(new Event('cookies-open'));
     });
 });
 
@@ -19,8 +23,36 @@ document.querySelectorAll('[data-catalog-layout-toggle]').forEach((element) => {
     }).mount(element);
 });
 
+document.querySelectorAll('[data-appointment-form]').forEach((element) => {
+    const payload = element.querySelector('[data-appointment-payload]');
+
+    createApp(AppointmentForm, JSON.parse(payload?.textContent || '{}')).mount(element);
+});
+
+document.querySelectorAll('[data-account-modal]').forEach((element) => {
+    const body = element.querySelector('[data-dialog-body]');
+
+    createApp(AccountFormDialog, {
+        initiallyOpen: element.dataset.open === '1',
+        label: element.dataset.label,
+        title: element.dataset.title,
+        triggerClass: element.dataset.triggerClass ?? '',
+        body: body?.innerHTML ?? '',
+        cancelLabel: element.dataset.cancelLabel,
+        closeLabel: element.dataset.closeLabel,
+    }).mount(element);
+});
+
+document.querySelectorAll('[data-product-view]').forEach((element) => {
+    const payload = JSON.parse(element.querySelector('[data-product-payload]')?.textContent || '{}');
+    const price = element.querySelector('[data-product-price]')?.innerHTML ?? '';
+
+    createApp(ProductView, { ...payload, price }).mount(element);
+});
+
 document.querySelectorAll('[data-mobile-menu]').forEach((element) => {
     createApp({
+        components: { HeaderAccountLinks },
         data: () => ({ open: false }),
     }).mount(element);
 });
@@ -32,10 +64,10 @@ document.querySelectorAll('[data-cookies]').forEach((element) => {
             if (!this.read()) {
                 this.visible = true;
             }
-            window.addEventListener('dds-cookies-open', this.onOpen);
+            window.addEventListener('cookies-open', this.onOpen);
         },
         beforeUnmount() {
-            window.removeEventListener('dds-cookies-open', this.onOpen);
+            window.removeEventListener('cookies-open', this.onOpen);
         },
         methods: {
             onOpen() {

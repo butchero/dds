@@ -1,0 +1,14 @@
+---
+description: Visible site copy uses a hyphen, never an em dash or en dash
+alwaysApply: true
+---
+
+# Visible punctuation
+
+User-facing text uses a hyphen (`-`). Do not use an em dash (`—`) or an en dash (`–`) in titles, labels, body copy, mail, admin placeholders, or stored catalog text.
+
+Write `Buderus - DDS Services Group`, not `Buderus — DDS Services Group`.
+
+Romanian quotation marks (`„ ”`) stay. The truncation mark in meta descriptions stays.
+
+Do not add other generated-text habits in interface copy: markdown emphasis, decorative arrows, or emoji.

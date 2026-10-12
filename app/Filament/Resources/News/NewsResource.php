@@ -3,17 +3,17 @@
 namespace App\Filament\Resources\News;
 
 use App\Filament\Resources\News\Pages\ManageNews;
+use App\Filament\Support\ContentBlocks;
 use App\Models\News;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use App\Filament\Support\ContentBlocks;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -29,38 +29,50 @@ class NewsResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static ?string $navigationLabel = 'Știri';
-
-    protected static ?string $modelLabel = 'știre';
-
-    protected static ?string $pluralModelLabel = 'Știri';
-
-    protected static string|\UnitEnum|null $navigationGroup = 'Conținut';
-
     protected static ?string $recordTitleAttribute = 'title';
+
+    public static function getNavigationLabel(): string
+    {
+        return __('Știri');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('știre');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('Știri');
+    }
+
+    public static function getNavigationGroup(): string|\UnitEnum|null
+    {
+        return __('Conținut');
+    }
 
     public static function form(Schema $schema): Schema
     {
         return $schema
             ->components([
                 TextInput::make('title')
-                    ->label('Titlu')
+                    ->label(__('Titlu'))
                     ->required(),
                 TextInput::make('slug')
                     ->label('Slug'),
                 Textarea::make('excerpt')
-                    ->label('Rezumat')
+                    ->label(__('Rezumat'))
                     ->columnSpanFull(),
                 FileUpload::make('image')
-                    ->label('Poză')
+                    ->label(__('Poză'))
                     ->image()
                     ->disk('public')
                     ->directory('stiri'),
                 ContentBlocks::make(),
                 DateTimePicker::make('published_at')
-                    ->label('Publicat la'),
+                    ->label(__('Publicat la')),
                 Toggle::make('is_published')
-                    ->label('Publicat')
+                    ->label(__('Publicat'))
                     ->required(),
             ]);
     }
@@ -71,27 +83,27 @@ class NewsResource extends Resource
             ->recordTitleAttribute('title')
             ->columns([
                 TextColumn::make('title')
-                    ->label('Titlu')
+                    ->label(__('Titlu'))
                     ->searchable(),
                 TextColumn::make('slug')
                     ->label('Slug')
                     ->searchable(),
                 ImageColumn::make('image')
-                    ->label('Poză'),
+                    ->label(__('Poză')),
                 TextColumn::make('published_at')
-                    ->label('Publicat la')
+                    ->label(__('Publicat la'))
                     ->dateTime()
                     ->sortable(),
                 IconColumn::make('is_published')
-                    ->label('Publicat')
+                    ->label(__('Publicat'))
                     ->boolean(),
                 TextColumn::make('created_at')
-                    ->label('Creat la')
+                    ->label(__('Creat la'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
-                    ->label('Actualizat la')
+                    ->label(__('Actualizat la'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

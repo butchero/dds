@@ -5,12 +5,16 @@ namespace Tests\Feature;
 use App\Enums\AttributeType;
 use App\Models\Attribute;
 use App\Models\AttributeOption;
+use App\Models\Banner;
+use App\Models\Manufacturer;
+use App\Models\News;
 use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\ProductImage;
 use App\Models\Service;
 use App\Models\ServiceCategory;
 use App\Models\SiteSetting;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -36,6 +40,220 @@ class SiteControllerTest extends TestCase
             ->assertSee('Centrala Ariston Clas')
             ->assertSee('<h1', false)
             ->assertDontSee('data-page', false);
+    }
+
+    public function test_footer_copyright_uses_the_start_year_setting_and_the_current_year(): void
+    {
+        $this->travelTo('2031-06-15');
+        SiteSetting::set('copyright_start_year', '1995');
+
+        $this->get(route('home'))
+            ->assertSee('© 1995-2031', false);
+    }
+
+    public function test_footer_copyright_defaults_to_2008_through_the_current_year(): void
+    {
+        $this->travelTo('2026-10-09');
+
+        $this->get(route('home'))
+            ->assertSee('© 2008-2026', false);
+    }
+
+    public function test_footer_omits_the_all_searches_link(): void
+    {
+        $this->get(route('home'))
+            ->assertDontSee('Toate cautarile');
+    }
+
+    public function test_home_renders_the_default_heading_as_its_only_h1(): void
+    {
+        $heading = 'Centrale termice Constanta - aparate aer conditionat Constanta';
+
+        $response = $this->get(route('home'));
+
+        $response->assertSee('<h1 class="mb-2 text-lg font-medium tracking-tight text-brand">'.$heading.'</h1>', false);
+        $response->assertSee('<title>'.$heading.'</title>', false);
+        $response->assertDontSee('text-[#b7b7b7]', false);
+        $this->assertSame(1, substr_count($response->getContent(), '<h1'));
+    }
+
+    public function test_home_renders_a_saved_heading_and_other_pages_omit_it(): void
+    {
+        SiteSetting::set('home_heading', '<script>alert(1)</script>');
+
+        $home = $this->get(route('home'));
+
+        $home->assertSee('<h1 class="mb-2 text-lg font-medium tracking-tight text-brand">&lt;script&gt;alert(1)&lt;/script&gt;</h1>', false);
+        $home->assertDontSee('<script>alert(1)</script>', false);
+        $this->assertSame(1, substr_count($home->getContent(), '<h1'));
+        $this->get(route('login'))->assertDontSee('alert(1)');
+    }
+
+    public function test_home_uses_the_saved_heading_as_the_hero_h1(): void
+    {
+        Banner::query()->create([
+            'title' => 'Centrale termice',
+            'image' => 'banners/hero.jpg',
+            'is_published' => true,
+            'sort' => 0,
+        ]);
+        SiteSetting::set('home_heading', 'Titlu din hero');
+
+        $response = $this->get(route('home'));
+
+        $response->assertSee('<h1 class="text-3xl font-medium tracking-tight text-balance sm:text-4xl sm:leading-tight">Titlu din hero</h1>', false);
+        $response->assertDontSee('<h1 class="mb-2 text-lg font-medium tracking-tight text-brand">', false);
+        $this->assertSame(1, substr_count($response->getContent(), '<h1'));
+    }
+
+    public function test_home_publishes_description_and_share_tags(): void
+    {
+        $heading = 'Centrale termice Constanta - aparate aer conditionat Constanta';
+        $description = 'DDS Services Group din Constanța comercializează și montează centrale termice și aparate de aer condiționat, cu service și verificări ISCIR.';
+
+        $response = $this->get(route('home'));
+
+        $response->assertSee('<title>'.$heading.'</title>', false);
+        $response->assertSee('<link rel="canonical" href="'.route('home').'">', false);
+        $response->assertSee('<meta name="description" content="'.$description.'">', false);
+        $response->assertSee('<meta property="og:title" content="'.$heading.'">', false);
+        $response->assertSee('<meta property="og:description" content="'.$description.'">', false);
+        $response->assertSee('<meta property="og:url" content="'.route('home').'">', false);
+        $response->assertSee('<meta property="og:type" content="website">', false);
+        $response->assertSee('<meta name="twitter:card" content="summary">', false);
+        $response->assertSee('<meta name="twitter:title" content="'.$heading.'">', false);
+        $response->assertDontSee('property="og:image"', false);
+    }
+
+    public function test_product_share_tags_use_the_excerpt_and_cover(): void
+    {
+        $product = Product::query()->create([
+            'name' => 'Centrala cu share',
+            'slug' => 'centrala-cu-share',
+            'excerpt' => '5 > 3 & "ok" <script>alert(1)</script>',
+            'image' => 'produse/coperta.jpg',
+            'is_published' => true,
+        ]);
+
+        $response = $this->get(route('product', $product));
+
+        $response->assertSee('<title>Centrala cu share - DDS Services Group</title>', false);
+        $response->assertSee('<meta name="description" content="5 &gt; 3 &amp; &quot;ok&quot; alert(1)">', false);
+        $response->assertDontSee('<script>alert(1)</script>', false);
+        $response->assertDontSee('5 > 3 & "ok"', false);
+        $response->assertSee('<meta name="twitter:card" content="summary_large_image">', false);
+        $this->assertMatchesRegularExpression(
+            '#<meta property="og:image" content="https?://[^"]+/storage/produse/coperta.jpg">#',
+            $response->getContent(),
+        );
+        $this->assertMatchesRegularExpression(
+            '#"images":\["https?://[^"]+/storage/produse/coperta.jpg"\]#',
+            $response->getContent(),
+        );
+    }
+
+    public function test_product_without_an_excerpt_uses_a_short_description_and_the_share_image(): void
+    {
+        SiteSetting::set('share_image', 'site/share.png');
+        $product = Product::query()->create([
+            'name' => 'Centrala fara rezumat',
+            'slug' => 'centrala-fara-rezumat',
+            'description' => str_repeat('alfa ', 40).'omegaunic',
+            'is_published' => true,
+        ]);
+
+        $response = $this->get(route('product', $product));
+        preg_match('/<meta name="description" content="([^"]*)"/', $response->getContent(), $matches);
+
+        $this->assertArrayHasKey(1, $matches);
+        $this->assertLessThanOrEqual(160, mb_strlen(html_entity_decode($matches[1])));
+        $this->assertStringEndsWith('…', html_entity_decode($matches[1]));
+        $this->assertStringNotContainsString('omegaunic', $matches[1]);
+        $this->assertMatchesRegularExpression(
+            '#<meta property="og:image" content="https?://[^"]+/storage/site/share.png">#',
+            $response->getContent(),
+        );
+    }
+
+    public function test_category_description_is_canonical_without_filters(): void
+    {
+        $category = ProductCategory::query()->create([
+            'name' => 'Centrale',
+            'slug' => 'centrale',
+            'description' => 'Centrale termice pentru locuințe.',
+        ]);
+
+        $response = $this->get(route('category', $category).'?pret=100');
+
+        $response->assertSee('<meta name="description" content="Centrale termice pentru locuințe.">', false);
+        $response->assertSee('<link rel="canonical" href="'.route('category', $category).'">', false);
+    }
+
+    public function test_news_page_is_an_article_for_sharing(): void
+    {
+        $news = News::query()->create([
+            'title' => 'Garantie extinsa',
+            'slug' => 'garantie-extinsa',
+            'excerpt' => 'Extindem garantia la centrale.',
+            'image' => 'stiri/garantie.jpg',
+            'is_published' => true,
+        ]);
+
+        $response = $this->get(route('news', $news));
+
+        $response->assertSee('<title>Garantie extinsa - DDS Services Group</title>', false);
+        $response->assertSee('<meta name="description" content="Extindem garantia la centrale.">', false);
+        $response->assertSee('<meta property="og:type" content="article">', false);
+        $this->assertMatchesRegularExpression(
+            '#<meta property="og:image" content="https?://[^"]+/storage/stiri/garantie.jpg">#',
+            $response->getContent(),
+        );
+    }
+
+    public function test_service_page_uses_the_first_text_and_image_block(): void
+    {
+        $category = ServiceCategory::query()->create([
+            'name' => 'Service',
+            'slug' => 'service-seo',
+        ]);
+        $service = Service::query()->create([
+            'service_category_id' => $category->id,
+            'name' => 'Montaj centrala',
+            'slug' => 'montaj-centrala-seo',
+            'is_published' => true,
+            'blocks' => [
+                ['type' => 'image', 'data' => ['path' => 'blocuri/montaj.jpg']],
+                ['type' => 'text', 'data' => ['body' => 'Montăm centrale termice în Constanța.']],
+            ],
+        ]);
+
+        $response = $this->get(route('service', $service));
+
+        $response->assertSee('<meta name="description" content="Montăm centrale termice în Constanța.">', false);
+        $this->assertMatchesRegularExpression(
+            '#<meta property="og:image" content="https?://[^"]+/storage/blocuri/montaj.jpg">#',
+            $response->getContent(),
+        );
+    }
+
+    public function test_search_keeps_the_query_in_the_canonical_url(): void
+    {
+        $response = $this->get(route('search', ['s' => 'Buderus']));
+
+        $response->assertSee('<meta name="description" content="Rezultate pentru Buderus.">', false);
+        $response->assertSee('<link rel="canonical" href="'.route('search', ['s' => 'Buderus']).'">', false);
+    }
+
+    public function test_login_and_account_are_not_indexed_or_shared(): void
+    {
+        $this->get(route('login'))
+            ->assertSee('<meta name="robots" content="noindex">', false)
+            ->assertDontSee('property="og:', false);
+
+        $this->actingAs(User::factory()->create())
+            ->get(route('account.home'))
+            ->assertSee('<meta name="robots" content="noindex">', false)
+            ->assertDontSee('property="og:', false);
     }
 
     public function test_unpublished_product_returns_not_found(): void
@@ -69,11 +287,12 @@ class SiteControllerTest extends TestCase
             'sort' => 1,
         ]);
 
-        $this->get(route('product', $product))
+        $response = $this->get(route('product', $product))
             ->assertOk()
             ->assertSee('produse/coperta.jpg', false)
             ->assertSee('produse/detaliu.jpg', false)
-            ->assertSee('data-gallery-thumb', false);
+            ->assertSee('Mărește fotografia', false)
+            ->assertSee('data-product-view', false);
     }
 
     public function test_product_description_is_escaped(): void
@@ -86,8 +305,36 @@ class SiteControllerTest extends TestCase
         ]);
 
         $this->get(route('product', $product))
-            ->assertSee('&lt;script&gt;alert(1)&lt;/script&gt;', false)
+            ->assertSee('Descriere', false)
+            ->assertSee('\u003Cscript\u003E', false)
             ->assertDontSee('<script>alert(1)</script>', false);
+    }
+
+    public function test_product_page_prefers_the_description_over_the_excerpt(): void
+    {
+        $product = Product::query()->create([
+            'name' => 'Centrala completa',
+            'slug' => 'centrala-completa',
+            'excerpt' => 'Extras unic.',
+            'description' => 'Descriere unica.',
+            'is_published' => true,
+        ]);
+
+        $this->get(route('product', $product))
+            ->assertSee('"description":"Descriere unica."', false);
+    }
+
+    public function test_product_page_uses_the_excerpt_when_the_description_is_empty(): void
+    {
+        $product = Product::query()->create([
+            'name' => 'Centrala doar extras',
+            'slug' => 'centrala-doar-extras',
+            'excerpt' => 'Extras de rezerva.',
+            'is_published' => true,
+        ]);
+
+        $this->get(route('product', $product))
+            ->assertSee('"description":"Extras de rezerva."', false);
     }
 
     public function test_product_page_uses_the_global_vat_rate_when_the_product_has_none(): void
@@ -177,7 +424,8 @@ class SiteControllerTest extends TestCase
 
         $this->get(route('product', $product))
             ->assertSee('Observatii')
-            ->assertSee('&lt;script&gt;alert(1)&lt;/script&gt;', false)
+            ->assertSee('Caracteristici', false)
+            ->assertSee('\u003Cscript\u003E', false)
             ->assertDontSee('<script>alert(1)</script>', false);
     }
 
@@ -199,18 +447,20 @@ class SiteControllerTest extends TestCase
             'name' => 'Centrale',
             'slug' => 'centrale',
         ]);
+        $buderus = Manufacturer::factory()->create(['name' => 'BUDERUS']);
+        $ariston = Manufacturer::factory()->create(['name' => 'ARISTON']);
         Product::query()->create([
             'product_category_id' => $category->id,
             'name' => 'Centrala Buderus',
             'slug' => 'centrala-buderus',
-            'manufacturer' => 'BUDERUS',
+            'manufacturer_id' => $buderus->id,
             'is_published' => true,
         ]);
         Product::query()->create([
             'product_category_id' => $category->id,
             'name' => 'Centrala Ariston',
             'slug' => 'centrala-ariston',
-            'manufacturer' => 'ARISTON',
+            'manufacturer_id' => $ariston->id,
             'is_published' => true,
         ]);
 
@@ -254,11 +504,12 @@ class SiteControllerTest extends TestCase
             'name' => 'Alta ramura',
             'slug' => 'alta-ramura',
         ]);
+        $buderus = Manufacturer::factory()->create(['name' => 'BUDERUS']);
         Product::query()->create([
             'product_category_id' => $child->id,
             'name' => 'Centrala Buderus',
             'slug' => 'centrala-buderus',
-            'manufacturer' => 'BUDERUS',
+            'manufacturer_id' => $buderus->id,
             'is_published' => true,
         ]);
 
@@ -339,11 +590,12 @@ class SiteControllerTest extends TestCase
             'is_filterable' => true,
         ]);
         $child->attributes()->attach($power);
+        $buderus = Manufacturer::factory()->create(['name' => 'BUDERUS']);
         $product = Product::query()->create([
             'product_category_id' => $child->id,
             'name' => 'Centrala Buderus',
             'slug' => 'centrala-buderus',
-            'manufacturer' => 'BUDERUS',
+            'manufacturer_id' => $buderus->id,
             'is_published' => true,
         ]);
         $product->values()->create([
@@ -726,10 +978,10 @@ class SiteControllerTest extends TestCase
             'productCategory' => $category,
             'afisare' => 'lista',
         ]))
-            ->assertCookie('dds_catalog_layout', 'list')
+            ->assertCookie('catalog_layout', 'list')
             ->assertSee('data-catalog-layout="list"', false);
 
-        $this->withCookie('dds_catalog_layout', 'list')
+        $this->withCookie('catalog_layout', 'list')
             ->get(route('category', $category))
             ->assertSee('data-catalog-layout="list"', false);
 
@@ -737,8 +989,70 @@ class SiteControllerTest extends TestCase
             's' => 'Centrala',
             'afisare' => 'grila',
         ]))
-            ->assertCookie('dds_catalog_layout', 'grid')
+            ->assertCookie('catalog_layout', 'grid')
             ->assertSee('data-catalog-layout="grid"', false);
+    }
+
+    public function test_home_shows_a_manufacturer_logo_that_links_to_its_products(): void
+    {
+        Manufacturer::factory()->create([
+            'name' => 'BUDERUS',
+            'logo' => 'producatori/buderus.jpg',
+        ]);
+        Manufacturer::factory()->create([
+            'name' => 'Fara logo',
+        ]);
+
+        $this->get(route('home'))
+            ->assertSee('producatori/buderus.jpg', false)
+            ->assertSee(route('manufacturer', 'buderus'), false)
+            ->assertDontSee('Fara logo');
+    }
+
+    public function test_manufacturer_page_lists_only_that_makers_published_products(): void
+    {
+        $buderus = Manufacturer::factory()->create(['name' => 'BUDERUS']);
+        $ariston = Manufacturer::factory()->create(['name' => 'ARISTON']);
+        Product::query()->create([
+            'name' => 'Centrala Buderus',
+            'slug' => 'centrala-buderus',
+            'manufacturer_id' => $buderus->id,
+            'is_published' => true,
+        ]);
+        Product::query()->create([
+            'name' => 'Centrala Ariston',
+            'slug' => 'centrala-ariston',
+            'manufacturer_id' => $ariston->id,
+            'is_published' => true,
+        ]);
+        Product::query()->create([
+            'name' => 'Centrala Buderus ascunsa',
+            'slug' => 'centrala-buderus-ascunsa',
+            'manufacturer_id' => $buderus->id,
+            'is_published' => false,
+        ]);
+
+        $this->get(route('manufacturer', $buderus))
+            ->assertSee('Centrala Buderus')
+            ->assertSee('<link rel="canonical" href="'.route('manufacturer', 'buderus').'">', false)
+            ->assertSee('href="'.route('manufacturer', 'buderus').'"', false)
+            ->assertDontSee('Centrala Ariston')
+            ->assertDontSee('Centrala Buderus ascunsa');
+    }
+
+    public function test_old_manufacturer_search_redirects_to_the_manufacturer_page(): void
+    {
+        Manufacturer::factory()->create(['name' => 'BUDERUS']);
+
+        $this->get(route('search', ['producator' => 'BUDERUS']))
+            ->assertStatus(301)
+            ->assertRedirectToRoute('manufacturer', 'buderus');
+    }
+
+    public function test_unknown_manufacturer_search_returns_not_found(): void
+    {
+        $this->get(route('search', ['producator' => 'Inexistent']))
+            ->assertNotFound();
     }
 
     public function test_search_renders_only_the_matching_product(): void

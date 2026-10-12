@@ -19,12 +19,8 @@ class PhoneConfirmationController extends Controller
 
         if ($pending === null) {
             return redirect()->route('login')->withErrors([
-                'phone' => 'Codul a expirat. Începe din nou.',
+                'phone' => __('Codul a expirat. Începe din nou.'),
             ]);
-        }
-
-        if ($pending['confirmed'] && $pending['purpose'] === 'claim') {
-            return redirect()->route('claim.finish');
         }
 
         return view('auth.phone-code', [
@@ -38,7 +34,7 @@ class PhoneConfirmationController extends Controller
 
         if ($pending === null) {
             return redirect()->route('login')->withErrors([
-                'phone' => 'Codul a expirat. Începe din nou.',
+                'phone' => __('Codul a expirat. Începe din nou.'),
             ]);
         }
 
@@ -48,7 +44,7 @@ class PhoneConfirmationController extends Controller
 
         if (! PhoneConfirmation::check($data['code'])) {
             throw ValidationException::withMessages([
-                'code' => 'Codul nu este corect sau a expirat.',
+                'code' => __('Codul nu este corect sau a expirat.'),
             ]);
         }
 
@@ -57,7 +53,6 @@ class PhoneConfirmationController extends Controller
         return match ($pending['purpose'] ?? '') {
             'register' => $this->completeRegistration($pending),
             'attach' => $this->completePhone($pending),
-            'claim' => redirect()->route('claim.finish'),
             default => redirect()->route('login'),
         };
     }
@@ -122,6 +117,6 @@ class PhoneConfirmationController extends Controller
 
         PhoneConfirmation::forget();
 
-        return redirect()->route('account.home')->with('status', 'Telefonul a fost confirmat.');
+        return redirect()->route('account.home')->with('status', __('Telefonul a fost confirmat.'));
     }
 }

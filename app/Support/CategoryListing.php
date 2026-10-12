@@ -49,7 +49,7 @@ class CategoryListing
         $stockOnly = $request->query('stoc') === '1';
 
         $pool = Product::query()
-            ->with(['category', 'values.attribute', 'selectedOptions.attribute'])
+            ->with(['category', 'manufacturer', 'values.attribute', 'selectedOptions.attribute'])
             ->where('is_published', true)
             ->whereIn('product_category_id', $listingCategoryIds)
             ->orderBy('sort')
@@ -100,7 +100,7 @@ class CategoryListing
         }
 
         if ($selectedMakers !== []) {
-            $constraints['manufacturer'] = fn (Product $product): bool => in_array((string) $product->manufacturer, $selectedMakers, true);
+            $constraints['manufacturer'] = fn (Product $product): bool => in_array((string) $product->manufacturer?->name, $selectedMakers, true);
         }
 
         if ($priceMin !== null || $priceMax !== null) {
@@ -380,14 +380,14 @@ class CategoryListing
         $eligible = $pool->filter(fn (Product $product): bool => self::matches($product, $constraints, 'manufacturer'));
 
         return $pool
-            ->pluck('manufacturer')
-            ->filter(fn (mixed $name): bool => is_string($name) && $name !== '')
+            ->map(fn (Product $product): ?string => $product->manufacturer?->name)
+            ->filter(fn (?string $name): bool => is_string($name) && $name !== '')
             ->unique()
             ->sort()
             ->values()
             ->map(fn (string $name): array => [
                 'name' => $name,
-                'count' => $eligible->where('manufacturer', $name)->count(),
+                'count' => $eligible->filter(fn (Product $product): bool => $product->manufacturer?->name === $name)->count(),
                 'checked' => in_array($name, $selectedMakers, true),
             ])
             ->filter(fn (array $maker): bool => $maker['count'] > 0)

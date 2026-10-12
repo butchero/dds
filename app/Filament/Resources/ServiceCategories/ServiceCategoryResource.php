@@ -24,34 +24,46 @@ class ServiceCategoryResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static ?string $navigationLabel = 'Categorii servicii';
-
-    protected static ?string $modelLabel = 'Categorie de serviciu';
-
-    protected static ?string $pluralModelLabel = 'Categorii servicii';
-
     protected static bool $hasTitleCaseModelLabel = false;
 
-    protected static string|\UnitEnum|null $navigationGroup = 'Servicii';
-
     protected static ?string $recordTitleAttribute = 'name';
+
+    public static function getNavigationLabel(): string
+    {
+        return __('Categorii servicii');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('Categorie de serviciu');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('Categorii servicii');
+    }
+
+    public static function getNavigationGroup(): string|\UnitEnum|null
+    {
+        return __('Servicii');
+    }
 
     public static function form(Schema $schema): Schema
     {
         return $schema
             ->components([
                 TextInput::make('name')
-                    ->label('Nume')
+                    ->label(__('Nume'))
                     ->required(),
                 TextInput::make('slug')
                     ->label('Slug'),
                 TextInput::make('sort')
-                    ->label('Ordine')
+                    ->label(__('Ordine'))
                     ->required()
                     ->numeric()
                     ->default(0),
                 Toggle::make('show_in_sidebar')
-                    ->label('În meniul lateral')
+                    ->label(__('În meniul lateral'))
                     ->required(),
             ]);
     }
@@ -62,25 +74,25 @@ class ServiceCategoryResource extends Resource
             ->recordTitleAttribute('name')
             ->columns([
                 TextColumn::make('name')
-                    ->label('Nume')
+                    ->label(__('Nume'))
                     ->searchable(),
                 TextColumn::make('slug')
                     ->label('Slug')
                     ->searchable(),
                 TextColumn::make('sort')
-                    ->label('Ordine')
+                    ->label(__('Ordine'))
                     ->numeric()
                     ->sortable(),
                 IconColumn::make('show_in_sidebar')
-                    ->label('În meniul lateral')
+                    ->label(__('În meniul lateral'))
                     ->boolean(),
                 TextColumn::make('created_at')
-                    ->label('Creat la')
+                    ->label(__('Creat la'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
-                    ->label('Actualizat la')
+                    ->label(__('Actualizat la'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

@@ -50,4 +50,11 @@ class Address extends Model
 
         return $place !== '' ? $place : 'Adresă';
     }
+
+    public function cardLine(): string
+    {
+        $street = trim('Str. '.$this->street.' nr. '.$this->street_number);
+
+        return implode(', ', array_filter([$street, $this->details, $this->city, $this->county]));
+    }
 }

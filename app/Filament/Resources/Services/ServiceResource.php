@@ -3,13 +3,13 @@
 namespace App\Filament\Resources\Services;
 
 use App\Filament\Resources\Services\Pages\ManageServices;
+use App\Filament\Support\ContentBlocks;
 use App\Models\Service;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use App\Filament\Support\ContentBlocks;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -26,36 +26,48 @@ class ServiceResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static ?string $navigationLabel = 'Servicii';
-
-    protected static ?string $modelLabel = 'serviciu';
-
-    protected static ?string $pluralModelLabel = 'Servicii';
-
-    protected static string|\UnitEnum|null $navigationGroup = 'Servicii';
-
     protected static ?string $recordTitleAttribute = 'name';
+
+    public static function getNavigationLabel(): string
+    {
+        return __('Servicii');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('serviciu');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('Servicii');
+    }
+
+    public static function getNavigationGroup(): string|\UnitEnum|null
+    {
+        return __('Servicii');
+    }
 
     public static function form(Schema $schema): Schema
     {
         return $schema
             ->components([
                 Select::make('service_category_id')
-                    ->label('Categorie')
+                    ->label(__('Categorie'))
                     ->relationship('category', 'name')
                     ->required(),
                 TextInput::make('name')
-                    ->label('Nume')
+                    ->label(__('Nume'))
                     ->required()
                     ->live(onBlur: true),
                 TextInput::make('slug')
                     ->label('Slug'),
                 ContentBlocks::make(),
                 Toggle::make('is_published')
-                    ->label('Publicat')
+                    ->label(__('Publicat'))
                     ->required(),
                 TextInput::make('sort')
-                    ->label('Ordine')
+                    ->label(__('Ordine'))
                     ->required()
                     ->numeric()
                     ->default(0),
@@ -68,28 +80,28 @@ class ServiceResource extends Resource
             ->recordTitleAttribute('name')
             ->columns([
                 TextColumn::make('category.name')
-                    ->label('Categorie')
+                    ->label(__('Categorie'))
                     ->searchable(),
                 TextColumn::make('name')
-                    ->label('Nume')
+                    ->label(__('Nume'))
                     ->searchable(),
                 TextColumn::make('slug')
                     ->label('Slug')
                     ->searchable(),
                 IconColumn::make('is_published')
-                    ->label('Publicat')
+                    ->label(__('Publicat'))
                     ->boolean(),
                 TextColumn::make('sort')
-                    ->label('Ordine')
+                    ->label(__('Ordine'))
                     ->numeric()
                     ->sortable(),
                 TextColumn::make('created_at')
-                    ->label('Creat la')
+                    ->label(__('Creat la'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
-                    ->label('Actualizat la')
+                    ->label(__('Actualizat la'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

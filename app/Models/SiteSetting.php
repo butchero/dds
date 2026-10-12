@@ -45,10 +45,105 @@ class SiteSetting extends Model
                 'cast' => 'boolean',
                 'description' => 'Dacă prețul introdus include deja TVA.',
             ],
+            'currency_suffix' => [
+                'default' => 'lei',
+                'cast' => 'string',
+                'description' => 'Sufixul afișat după sumele de preț în catalog.',
+            ],
+            'sms_sender_prefix' => [
+                'default' => 'DDS',
+                'cast' => 'string',
+                'description' => 'Prefixul din mesajele SMS trimise clienților.',
+            ],
+            'brand_primary' => [
+                'default' => '#fe5013',
+                'cast' => 'string',
+                'description' => 'Culoarea principală a brandului (hex), folosită în admin.',
+            ],
+            'founded_year' => [
+                'default' => '1995',
+                'cast' => 'string',
+                'description' => 'Anul înființării firmei, afișat pe prima pagină.',
+            ],
             'company_email' => [
                 'default' => 'vali.ciuca@gmail.com',
                 'cast' => 'string',
-                'description' => 'Adresa la care ajung programările noi.',
+                'description' => 'Adresa la care ajung programările și mesajele din formularul de contact.',
+            ],
+            'contact_company' => [
+                'default' => 'SC DDS SERVICES GROUP SRL',
+                'cast' => 'string',
+                'description' => 'Numele firmei afișat pe pagina de contact.',
+            ],
+            'contact_address' => [
+                'default' => 'Bd. Mamaia nr. 70, bl. Bi 1, parter',
+                'cast' => 'string',
+                'description' => 'Adresa afișată pe pagina de contact.',
+            ],
+            'contact_city' => [
+                'default' => 'Constanța',
+                'cast' => 'string',
+                'description' => 'Localitatea afișată pe pagina de contact.',
+            ],
+            'contact_email' => [
+                'default' => 'office@dds-constanta.ro',
+                'cast' => 'string',
+                'description' => 'E-mailul afișat pe pagina de contact.',
+            ],
+            'contact_phone' => [
+                'default' => '0241-619619',
+                'cast' => 'string',
+                'description' => 'Telefonul afișat pe pagina de contact.',
+            ],
+            'contact_fax' => [
+                'default' => '0241-619699',
+                'cast' => 'string',
+                'description' => 'Faxul afișat pe pagina de contact.',
+            ],
+            'contact_mobile' => [
+                'default' => '0722-462289',
+                'cast' => 'string',
+                'description' => 'Primul mobil afișat pe pagina de contact.',
+            ],
+            'contact_mobile_alt' => [
+                'default' => '0722-462279',
+                'cast' => 'string',
+                'description' => 'Al doilea mobil afișat pe pagina de contact.',
+            ],
+            'contact_latitude' => [
+                'default' => '44.1878643',
+                'cast' => 'string',
+                'description' => 'Latitudinea sediului, folosită de harta de pe pagina de contact.',
+            ],
+            'contact_longitude' => [
+                'default' => '28.6507139',
+                'cast' => 'string',
+                'description' => 'Longitudinea sediului, folosită de harta de pe pagina de contact.',
+            ],
+            'home_heading' => [
+                'default' => 'Centrale termice Constanta - aparate aer conditionat Constanta',
+                'cast' => 'string',
+                'description' => 'Titlul afișat ca titlu principal pe prima pagină.',
+            ],
+            'title_suffix' => [
+                'default' => 'DDS Services Group',
+                'cast' => 'string',
+                'description' => 'Numele brandului: sufixul din titlul paginii, admin și mesaje.',
+            ],
+            'copyright_start_year' => [
+                'default' => '2008',
+                'cast' => 'string',
+                'description' => 'Anul de la care începe copyrightul din subsol.',
+            ],
+            'meta_description' => [
+                'default' => 'DDS Services Group din Constanța comercializează și montează centrale termice și aparate de aer condiționat, cu service și verificări ISCIR.',
+                'cast' => 'string',
+                'description' => 'Descrierea folosită când pagina nu are un text propriu.',
+            ],
+            'share_image' => [
+                'default' => '',
+                'cast' => 'string',
+                'description' => 'Imaginea folosită la share când pagina nu are o poză proprie.',
             ],
         ];
     }

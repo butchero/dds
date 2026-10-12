@@ -54,7 +54,7 @@ class SocialAuthController extends Controller
 
         if (blank($email)) {
             return redirect()->route('login')->withErrors([
-                'email' => 'Contul de socializare nu a trimis o adresă de e-mail.',
+                'email' => __('Contul de socializare nu a trimis o adresă de e-mail.'),
             ]);
         }
 

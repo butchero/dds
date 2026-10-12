@@ -44,10 +44,10 @@ class Appointment extends Model
     public static function statuses(): array
     {
         return [
-            'requested' => 'Cerută',
-            'confirmed' => 'Confirmată',
-            'done' => 'Efectuată',
-            'cancelled' => 'Anulată',
+            'requested' => __('Cerută'),
+            'confirmed' => __('Confirmată'),
+            'done' => __('Efectuată'),
+            'cancelled' => __('Anulată'),
         ];
     }
 

@@ -1,40 +1,57 @@
-@props(['title' => null, 'breadcrumbs' => null])
+@props([
+    'title' => null,
+    'breadcrumbs' => null,
+    'account' => false,
+    'accountCurrent' => null,
+    'description' => null,
+    'image' => null,
+    'index' => true,
+    'type' => 'website',
+    'suffix' => true,
+    'canonical' => null,
+    'wide' => false,
+])
+
+@php
+    $meta = \App\Support\PageMeta::make(
+        title: $title,
+        description: $description,
+        image: $image,
+        index: (bool) $index,
+        type: $type,
+        suffix: (bool) $suffix,
+        canonical: $canonical,
+    );
+@endphp
 
 <!DOCTYPE html>
 <html lang="ro">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ $title ? $title.' — '.config('app.name') : config('app.name') }}</title>
+    <x-page-meta :meta="$meta" />
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="m-0 bg-white font-sans text-base leading-6 text-[#444444]">
     <div id="top" class="mx-auto w-full max-w-7xl bg-white px-3 pb-[10px] sm:px-4 lg:px-6">
-        <div class="pr-5 pt-[5px] text-right">
-            <p class="m-0 text-xs font-medium leading-4 text-[#b7b7b7]">{{ __('Centrale termice Constanta - aparate aer conditionat Constanta') }}</p>
-        </div>
-
         <div data-mobile-menu>
             <div class="mt-2 flex flex-col items-center gap-3 sm:flex-row sm:items-end sm:justify-between">
                 <a href="{{ route('home') }}" class="mb-0 block shrink-0 sm:mb-2" v-pre>
-                    <img src="/images/logo.svg" width="155" height="79" alt="{{ __('DDS Services Group') }}">
+                    <img src="/images/logo.svg" width="155" height="79" alt="{{ \App\Models\SiteSetting::get('title_suffix') }}">
                 </a>
                 <button type="button" class="inline-flex h-8 w-8 items-center justify-center rounded border border-[#d5d5d5] text-brand sm:hidden" aria-label="{{ __('Meniu') }}" @@click="open = !open">
                     <span class="block h-0.5 w-4 bg-current shadow-[0_-5px_0_currentColor,0_5px_0_currentColor]"></span>
                 </button>
-                <div class="hidden flex-col items-end gap-2 sm:flex">
-                    <div class="flex gap-3 text-sm">
-                        @auth
-                            <a href="{{ route('account.home') }}" class="text-brand no-underline hover:underline">{{ __('Contul meu') }}</a>
-                        @else
-                            <a href="{{ route('login') }}" class="text-brand no-underline hover:underline">{{ __('Autentificare') }}</a>
-                            <a href="{{ route('register') }}" class="text-brand no-underline hover:underline">{{ __('Creează cont') }}</a>
-                        @endauth
+                <div class="hidden flex-col items-end self-stretch sm:flex">
+                    <div class="flex w-full flex-1 items-center justify-end pr-[calc(38px_+_10px)]">
+                        <div class="-translate-y-1">
+                            <x-header-account-links layout="desktop" />
+                        </div>
                     </div>
                     @if ($site['menuPosition'] === 'top')
-                        <nav class="relative z-20 -mb-px flex max-w-full justify-end" v-pre>
+                        <nav class="relative z-20 -mb-px flex max-w-full shrink-0 justify-end" v-pre>
                             @foreach ($site['menu'] as $item)
                                 <a href="{{ $item->url }}" @class(['tab', 'tab-active' => \App\Support\SiteCatalog::isCurrent($item->url), 'mr-[10px]' => $loop->last])>{{ $item->label }}</a>
                             @endforeach
@@ -47,12 +64,7 @@
                 @foreach ($site['menu'] as $item)
                     <a href="{{ $item->url }}" class="border-b border-hairline px-3 py-2 text-brand no-underline" v-pre>{{ $item->label }}</a>
                 @endforeach
-                @auth
-                    <a href="{{ route('account.home') }}" class="px-3 py-2 text-brand no-underline" v-pre>{{ __('Contul meu') }}</a>
-                @else
-                    <a href="{{ route('login') }}" class="border-b border-hairline px-3 py-2 text-brand no-underline" v-pre>{{ __('Autentificare') }}</a>
-                    <a href="{{ route('register') }}" class="px-3 py-2 text-brand no-underline" v-pre>{{ __('Creează cont') }}</a>
-                @endauth
+                <x-header-account-links layout="menu" />
             </div>
         </div>
 
@@ -79,8 +91,49 @@
             <x-breadcrumbs :items="$breadcrumbs" />
         @endif
 
-        <div class="flex flex-col items-start gap-2.5 pt-2.5 md:flex-row md:flex-wrap lg:flex-nowrap lg:gap-0">
+        <div @class([
+            'pt-2.5',
+            'flex flex-col items-start gap-2.5 md:flex-row md:flex-wrap lg:flex-nowrap lg:gap-0' => ! $wide,
+        ])>
+            @unless ($wide)
             <aside class="order-2 w-full shrink-0 md:w-[calc(50%-5px)] lg:order-1 lg:w-60 lg:pr-2.5">
+                @if ($account)
+                    <nav class="flex" aria-label="{{ __('Secțiunile contului') }}">
+                        <div class="w-[6px] shrink-0 pt-[70px]">
+                            <div class="h-[129px] w-[6px] rounded-l-[5px] bg-[#fe5013]"></div>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <div class="flex h-11 items-center rounded-t-[7px] border border-b-0 border-[#ededed] bg-gradient-to-b from-white to-[#f7f7f7]">
+                                <span class="ml-[12px] text-sm text-[#ff4e11]">{{ __('CONTUL MEU') }}</span>
+                            </div>
+                            <div class="border-x border-hairline pt-[7px]">
+                                @foreach ([
+                                    'profile' => [__('Datele mele'), route('account.home')],
+                                    'addresses' => [__('Adrese'), route('account.addresses')],
+                                    'equipment' => [__('Echipamente'), route('account.equipment')],
+                                    'billing' => [__('Facturare'), route('account.billing')],
+                                    'appointments' => [__('Programări'), route('account.appointments')],
+                                ] as $key => [$label, $url])
+                                    <div @class(['flex px-[10px]', 'pb-[7px]' => $loop->last])>
+                                        <a
+                                            href="{{ $url }}"
+                                            @class([
+                                                'text-sm leading-5 no-underline hover:text-link',
+                                                'font-bold text-[#444444]' => $accountCurrent === $key,
+                                                'font-semibold text-menu' => $accountCurrent !== $key,
+                                            ])
+                                            @if ($accountCurrent === $key) aria-current="page" @endif
+                                        >{{ $label }}</a>
+                                    </div>
+                                    @unless ($loop->last)
+                                        <div class="dotted-line mx-auto my-[4px] w-[80%] max-w-[180px]"></div>
+                                    @endunless
+                                @endforeach
+                            </div>
+                            <div class="h-[8px] rounded-b-[7px] border border-t-0 border-hairline"></div>
+                        </div>
+                    </nav>
+                @else
                 @if ($site['menuPosition'] === 'left')
                     <nav class="mb-2.5 flex">
                         <div class="w-[6px] shrink-0 pt-[70px]">
@@ -93,7 +146,6 @@
                             <div class="border-x border-hairline pt-[7px]">
                                 @foreach ($site['menu'] as $item)
                                     <div @class(['flex px-[10px]', 'pb-[7px]' => $loop->last])>
-                                        <span class="w-[18px] shrink-0 pt-[2px]"><img src="/images/bullet-orange.svg" width="13" height="12" alt=""></span>
                                         <a href="{{ $item->url }}" class="text-sm font-semibold leading-5 text-menu no-underline hover:text-link">{{ $item->label }}</a>
                                     </div>
                                     @unless ($loop->last)
@@ -143,7 +195,6 @@
                                 <div class="border-x border-hairline pt-[7px]">
                                     @foreach ($directChildren as $child)
                                         <div @class(['flex px-[10px]', 'pb-[7px]' => $loop->last])>
-                                            <span class="w-[18px] shrink-0 pt-[2px]"><img src="/images/bullet-orange.svg" width="13" height="12" alt=""></span>
                                             <a href="{{ route('category', $child) }}" class="text-sm font-semibold leading-5 text-menu no-underline hover:text-link">{{ $child->name }}</a>
                                         </div>
                                         @unless ($loop->last)
@@ -156,7 +207,6 @@
                                     @foreach ($site['productCategories'] as $category)
                                         @php($isOpen = $listsEveryCategory && $category->is($categoryBox['current']))
                                         <div class="flex px-[10px]">
-                                            <span class="w-[18px] shrink-0 pt-[2px]"><img src="/images/bullet-orange.svg" width="13" height="12" alt=""></span>
                                             <a
                                                 href="{{ route('category', $category) }}"
                                                 @class([
@@ -198,7 +248,6 @@
                             <div class="border-x border-hairline pt-[7px]">
                                 @foreach ($category->services as $service)
                                     <div @class(['flex px-[10px]', 'pb-[7px]' => $loop->last])>
-                                        <span class="w-[18px] shrink-0 pt-[2px]"><img src="{{ $site['hasProducts'] ? '/images/bullet-gray.svg' : '/images/bullet-orange.svg' }}" width="13" height="12" alt=""></span>
                                         <a href="{{ route('service', $service) }}" class="text-sm font-semibold leading-5 text-menu no-underline hover:text-link">{{ $service->name }}</a>
                                     </div>
                                     @unless ($loop->last)
@@ -223,8 +272,7 @@
                             <div class="border-x border-hairline pt-[7px]">
                                 @foreach ($site['manufacturers'] as $maker)
                                     <div class="flex px-[10px]">
-                                        <span class="w-[18px] shrink-0 pt-[2px]"><img src="/images/bullet-gray.svg" width="13" height="12" alt=""></span>
-                                        <span class="text-sm leading-5 text-[#62879f]"><a href="{{ route('search', ['producator' => $maker['name']]) }}" class="font-semibold text-[#6f6a68] no-underline hover:text-link hover:underline">{{ $maker['name'] }}</a> {{ __('(:total)', ['total' => $maker['total']]) }}</span>
+                                        <span class="text-sm leading-5 text-[#62879f]"><a href="{{ route('manufacturer', $maker['slug']) }}" class="font-semibold text-[#6f6a68] no-underline hover:text-link hover:underline">{{ $maker['name'] }}</a> {{ __('(:total)', ['total' => $maker['total']]) }}</span>
                                     </div>
                                     <div class="dotted-line mx-auto my-[4px] w-[80%] max-w-[180px]"></div>
                                 @endforeach
@@ -236,12 +284,15 @@
                         </div>
                     </div>
                 @endif
+                @endif
             </aside>
+            @endunless
 
-            <main class="order-1 w-full min-w-0 lg:order-2 lg:w-auto lg:flex-1">
+            <main @class(['w-full min-w-0', 'order-1 lg:order-2 lg:w-auto lg:flex-1' => ! $wide])>
                 {{ $slot }}
             </main>
 
+            @unless ($wide)
             <aside class="order-3 w-full shrink-0 md:w-[calc(50%-5px)] lg:w-56 lg:px-2.5">
                 <div class="w-full">
                     <div class="h-[8px] rounded-t-[7px] border border-b-0 border-hairline bg-white"></div>
@@ -277,36 +328,10 @@
                     </div>
                 @endif
             </aside>
+            @endunless
         </div>
 
-        <div class="h-[20px]"></div>
-        <div class="h-px bg-hairline"></div>
-        <div class="p-[10px] text-center text-sm leading-6">
-            <a href="/categorie/centrale-termice" class="text-brand no-underline hover:text-submenu hover:underline">{{ __('Centrale termice') }}</a>&nbsp;-&nbsp;
-            <a href="{{ route('search') }}" class="text-brand no-underline hover:text-submenu hover:underline">{{ __('Producatori') }}</a>&nbsp;-&nbsp;
-            <a href="/servicii/contact" class="text-brand no-underline hover:text-submenu hover:underline">{{ __('Intrebari Frecvente') }}</a>&nbsp;-&nbsp;
-            <a href="/servicii/despre-noi" class="text-brand no-underline hover:text-submenu hover:underline">{{ __('Despre Noi') }}</a>&nbsp;-&nbsp;
-            <a href="/servicii/despre-noi" class="text-brand no-underline hover:text-submenu hover:underline">{{ __('Termeni si conditii') }}</a>&nbsp;-&nbsp;
-            <a href="{{ route('search') }}" class="text-brand no-underline hover:text-submenu hover:underline">{{ __('Toate cautarile') }}</a>&nbsp;-&nbsp;
-            <a href="{{ route('home') }}" class="text-brand no-underline hover:text-submenu hover:underline">{{ __('Sitemap') }}</a>&nbsp;-&nbsp;
-            <a href="/servicii/contact" class="text-brand no-underline hover:text-submenu hover:underline">{{ __('Contact') }}</a>
-        </div>
-        <div class="text-center text-sm text-[#716f6f]">
-            <p class="mb-[11px]">{{ __('Citeste') }} <a href="{{ route('privacy') }}" class="text-link">{{ __('Politica de Confidentialitate') }}</a> {{ __('si continuarea navigarii pe acest site implica acceptarea') }} <a href="{{ route('cookies') }}" class="text-link">{{ __('Politicii de Cookies') }}</a>.</p>
-            <p class="mb-[11px]">
-                <button type="button" class="text-link underline" data-cookies-open>{{ __('Setări cookie-uri') }}</button>
-            </p>
-            <p class="mb-[11px]">
-                <a href="https://www.cazare-pe-litoral.ro" title="{{ __('Cazare pe litoral') }}" class="text-brand no-underline hover:text-submenu hover:underline">{{ __('Cazare pe litoral') }}</a>
-                &nbsp;-&nbsp;
-                <a href="https://www.magazin-blanuri.ro" title="{{ __('Magazin blanuri - haine din blana') }}" class="text-brand no-underline hover:text-submenu hover:underline">{{ __('Magazin blanuri') }}</a>
-            </p>
-        </div>
-        <div class="h-px bg-hairline"></div>
-        <div class="p-[10px] text-center">
-            {{ __('un produs proaspat oferit de') }} <a href="https://www.layerzero.ro" title="{{ __('Web Design') }}" class="text-link">layerzero.ro</a>
-        </div>
-        <div class="text-center">{{ __('© 2008 DDS Services Group') }}</div>
+        <x-site-footer />
 
         <div data-cookies>
             <div class="fixed inset-x-0 bottom-0 z-50 px-3 pb-3" style="display: none" v-show="visible">
@@ -318,8 +343,8 @@
                         {{ __('și') }} <a href="{{ route('privacy') }}" class="text-link">{{ __('Politica de confidențialitate') }}</a>.
                     </p>
                     <div class="mt-3 border border-hairline p-3 leading-[16px]" style="display: none" v-show="details">
-                        <p class="m-0"><strong>{{ __('Necesare') }}</strong> — {{ __('mereu active. Țin sesiunea de autentificare, protecția formularelor și alegerea făcută aici. Nu pot fi oprite.') }}</p>
-                        <p class="mt-2 mb-0"><strong>{{ __('Statistici') }}</strong> — {{ __('momentan nu folosim astfel de cookie-uri. Dacă le vom adăuga, vor porni doar după „Acceptă toate”.') }}</p>
+                        <p class="m-0"><strong>{{ __('Necesare') }}</strong> - {{ __('mereu active. Țin sesiunea de autentificare, protecția formularelor și alegerea făcută aici. Nu pot fi oprite.') }}</p>
+                        <p class="mt-2 mb-0"><strong>{{ __('Statistici') }}</strong> - {{ __('momentan nu folosim astfel de cookie-uri. Dacă le vom adăuga, vor porni doar după „Acceptă toate”.') }}</p>
                     </div>
                     <div class="mt-3 flex flex-wrap gap-2">
                         <button type="button" class="bg-brand px-3 py-1 text-white" @@click="save('all')">{{ __('Acceptă toate') }}</button>

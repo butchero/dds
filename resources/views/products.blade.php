@@ -1,4 +1,4 @@
-<x-site-layout :title="$title" :breadcrumbs="$breadcrumbs">
+<x-site-layout :title="$title" :description="$description ?? null" :canonical="$canonical ?? null" :breadcrumbs="$breadcrumbs">
     @isset($category)
         <div class="px-2.5">
             <h1 class="mb-2 text-lg font-medium tracking-tight text-[#444444]">{{ $title }}</h1>

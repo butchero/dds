@@ -13,16 +13,11 @@ use Filament\Schemas\Components\EmbeddedSchema;
 use Filament\Schemas\Components\Form;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Contracts\Support\Htmlable;
 
 class FirmSettings extends Page
 {
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedEnvelope;
-
-    protected static ?string $navigationLabel = 'Date firmă';
-
-    protected static ?string $title = 'Date firmă';
-
-    protected static string|\UnitEnum|null $navigationGroup = 'Clienți';
 
     protected static ?int $navigationSort = 40;
 
@@ -30,6 +25,21 @@ class FirmSettings extends Page
      * @var array<string, mixed>|null
      */
     public ?array $data = [];
+
+    public static function getNavigationLabel(): string
+    {
+        return __('Date firmă');
+    }
+
+    public function getTitle(): string|Htmlable
+    {
+        return __('Date firmă');
+    }
+
+    public static function getNavigationGroup(): string|\UnitEnum|null
+    {
+        return __('Clienți');
+    }
 
     public function mount(): void
     {
@@ -48,10 +58,10 @@ class FirmSettings extends Page
         return $schema
             ->components([
                 TextInput::make('company_email')
-                    ->label('E-mail firmă')
+                    ->label(__('E-mail firmă'))
                     ->email()
                     ->required()
-                    ->helperText('Primește un mesaj la fiecare programare nouă.'),
+                    ->helperText(__('Primește un mesaj la fiecare programare nouă.')),
             ]);
     }
 
@@ -65,7 +75,7 @@ class FirmSettings extends Page
                     ->footer([
                         Actions::make([
                             Action::make('save')
-                                ->label('Salvează')
+                                ->label(__('Salvează'))
                                 ->submit('save'),
                         ]),
                     ]),
@@ -79,7 +89,7 @@ class FirmSettings extends Page
         SiteSetting::set('company_email', $state['company_email']);
 
         Notification::make()
-            ->title('Adresa a fost salvată.')
+            ->title(__('Adresa a fost salvată.'))
             ->success()
             ->send();
     }

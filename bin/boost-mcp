@@ -1,3 +1,4 @@
 #!/bin/sh
 cd "$(dirname "$0")/.." || exit 1
-exec docker.exe compose exec -T laravel.test php artisan boost:mcp
+# Compose exec defaults to root. Root-owned compiled views cannot be updated by the sail process that serves the site.
+exec docker.exe compose exec -T -u sail laravel.test php artisan boost:mcp

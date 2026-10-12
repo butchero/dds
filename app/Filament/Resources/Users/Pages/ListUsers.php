@@ -17,7 +17,7 @@ class ListUsers extends ListRecords
         return [
             ImportAction::make()
                 ->importer(ClientImporter::class)
-                ->label('Importă clienți'),
+                ->label(__('Importă clienți')),
             CreateAction::make(),
         ];
     }

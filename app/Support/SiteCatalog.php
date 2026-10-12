@@ -3,6 +3,7 @@
 namespace App\Support;
 
 use App\Models\Banner;
+use App\Models\Manufacturer;
 use App\Models\MenuItem;
 use App\Models\News;
 use App\Models\Product;
@@ -28,16 +29,15 @@ class SiteCatalog
                 ->orderBy('sort')
                 ->get(['id', 'name', 'slug']),
             'hasProducts' => Product::query()->where('is_published', true)->exists(),
-            'manufacturers' => Product::query()
-                ->where('is_published', true)
-                ->whereNotNull('manufacturer')
-                ->selectRaw('manufacturer, COUNT(*) as total')
-                ->groupBy('manufacturer')
-                ->orderBy('manufacturer')
+            'manufacturers' => Manufacturer::query()
+                ->whereHas('products', fn ($query) => $query->where('is_published', true))
+                ->withCount(['products as total' => fn ($query) => $query->where('is_published', true)])
+                ->orderBy('name')
                 ->get()
-                ->map(fn (Product $product) => [
-                    'name' => $product->manufacturer,
-                    'total' => (int) $product->total,
+                ->map(fn (Manufacturer $manufacturer) => [
+                    'name' => $manufacturer->name,
+                    'slug' => $manufacturer->slug,
+                    'total' => (int) $manufacturer->total,
                 ]),
             'news' => News::query()
                 ->where('is_published', true)

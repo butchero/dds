@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use App\Models\Equipment;
+use App\Models\SiteSetting;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
@@ -33,14 +34,23 @@ class RevisionDueNotification extends Notification
 
     public function toMail(object $notifiable): MailMessage
     {
+        $date = $this->equipment->next_revision_on?->format('d.m.Y');
+
         return (new MailMessage)
-            ->subject('Se apropie revizia pentru '.$this->equipment->name)
-            ->line('Urmatoarea revizie pentru '.$this->equipment->name.' este la '.$this->equipment->next_revision_on?->format('d.m.Y').'.')
-            ->line('Puteti cere o programare din contul de client.');
+            ->subject(__('Se apropie revizia pentru :equipment', ['equipment' => $this->equipment->name]))
+            ->line(__('Urmatoarea revizie pentru :equipment este la :date.', [
+                'equipment' => $this->equipment->name,
+                'date' => $date,
+            ]))
+            ->line(__('Puteti cere o programare din contul de client.'));
     }
 
     public function toSms(object $notifiable): string
     {
-        return 'DDS: revizia pentru '.$this->equipment->name.' este la '.$this->equipment->next_revision_on?->format('d.m.Y').'.';
+        return __(':prefix: revizia pentru :equipment este la :date.', [
+            'prefix' => SiteSetting::get('sms_sender_prefix'),
+            'equipment' => $this->equipment->name,
+            'date' => $this->equipment->next_revision_on?->format('d.m.Y'),
+        ]);
     }
 }

@@ -1,0 +1,12 @@
+---
+description: Use shadcn-vue for interface components, in the site theme colors
+alwaysApply: true
+---
+
+# shadcn-vue
+
+When adding or changing interface components in Vue, use the shadcn-vue components in `resources/js/Components/ui`. They are the Reka Nova style already in this project (`components.json`). Do not hand-roll dialogs, buttons, inputs, or overlays when a shadcn-vue component exists.
+
+Adapt colors to this site. Primary is the brand orange `#fe5013`, with white text. Links stay `#0bb2f7` (`text-link`). Reuse `Button` and the other components so new UI picks up those tokens instead of one-off colors.
+
+Blade pages can mount a small Vue app, as `resources/js/app.js` already does, and that app should render the shadcn-vue component.

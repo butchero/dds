@@ -6,6 +6,7 @@ use App\Enums\AttributeType;
 use App\Filament\Resources\Products\Pages\ManageProducts;
 use App\Models\AttributeOption;
 use App\Models\Product;
+use App\Models\SiteSetting;
 use App\Support\ProductCharacteristics;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
@@ -38,22 +39,34 @@ class ProductResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static ?string $navigationLabel = 'Produse';
-
-    protected static ?string $modelLabel = 'produs';
-
-    protected static ?string $pluralModelLabel = 'Produse';
-
-    protected static string|\UnitEnum|null $navigationGroup = 'Catalog';
-
     protected static ?string $recordTitleAttribute = 'name';
+
+    public static function getNavigationLabel(): string
+    {
+        return __('Produse');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('produs');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('Produse');
+    }
+
+    public static function getNavigationGroup(): string|\UnitEnum|null
+    {
+        return __('Catalog');
+    }
 
     public static function form(Schema $schema): Schema
     {
         return $schema
             ->components([
                 Select::make('product_category_id')
-                    ->label('Categorie')
+                    ->label(__('Categorie'))
                     ->relationship('category', 'name')
                     ->live()
                     ->afterStateUpdated(function (Set $set, Get $get, ?string $state): void {
@@ -63,18 +76,18 @@ class ProductResource extends Resource
                         ));
                     }),
                 TextInput::make('name')
-                    ->label('Nume')
+                    ->label(__('Nume'))
                     ->required(),
                 TextInput::make('slug')
                     ->label('Slug'),
                 Textarea::make('excerpt')
-                    ->label('Rezumat')
+                    ->label(__('Rezumat'))
                     ->columnSpanFull(),
                 Textarea::make('description')
-                    ->label('Descriere')
+                    ->label(__('Descriere'))
                     ->columnSpanFull(),
                 FileUpload::make('gallery')
-                    ->label('Poze')
+                    ->label(__('Poze'))
                     ->multiple()
                     ->reorderable()
                     ->appendFiles()
@@ -83,71 +96,74 @@ class ProductResource extends Resource
                     ->directory('produse')
                     ->visibility('public')
                     ->columnSpanFull(),
-                TextInput::make('manufacturer')
-                    ->label('Producător'),
-                Section::make('Comercial')
+                Select::make('manufacturer_id')
+                    ->label(__('Producător'))
+                    ->relationship('manufacturer', 'name')
+                    ->searchable()
+                    ->preload(),
+                Section::make(__('Comercial'))
                     ->schema([
                         TextInput::make('price')
-                            ->label('Preț')
+                            ->label(__('Preț'))
                             ->numeric()
                             ->minValue(0)
                             ->step(0.01)
-                            ->suffix('lei')
-                            ->helperText('Opțional. Catalogul poate afișa produse fără preț.')
+                            ->suffix(fn (): string => (string) SiteSetting::get('currency_suffix'))
+                            ->helperText(__('Opțional. Catalogul poate afișa produse fără preț.'))
                             ->dehydrateStateUsing(fn (mixed $state): mixed => self::emptyToNull($state)),
                         TextInput::make('quantity')
-                            ->label('Cantitate')
+                            ->label(__('Cantitate'))
                             ->integer()
                             ->minValue(0)
                             ->dehydrateStateUsing(fn (mixed $state): mixed => self::emptyToNull($state)),
                         TextInput::make('vat_rate')
-                            ->label('Cotă TVA')
+                            ->label(__('Cotă TVA'))
                             ->numeric()
                             ->minValue(0)
                             ->maxValue(100)
                             ->step(0.01)
                             ->suffix('%')
-                            ->helperText('Gol = cota globală.')
+                            ->helperText(__('Gol = cota globală.'))
                             ->dehydrateStateUsing(fn (mixed $state): mixed => self::emptyToNull($state)),
                     ])
                     ->columnSpanFull(),
                 TextEntry::make('characteristics_empty')
-                    ->label('Caracteristici')
-                    ->state('Categoria nu are caracteristici asignate.')
+                    ->label(__('Caracteristici'))
+                    ->state(__('Categoria nu are caracteristici asignate.'))
                     ->dehydrated(false)
                     ->visible(fn (Get $get): bool => filled($get('product_category_id')) && blank($get('characteristic_values')))
                     ->columnSpanFull(),
                 Repeater::make('characteristic_values')
-                    ->label('Caracteristici')
+                    ->label(__('Caracteristici'))
                     ->schema([
                         Hidden::make('attribute_id'),
                         Hidden::make('type'),
                         Hidden::make('name'),
                         Hidden::make('unit'),
                         Textarea::make('value_text')
-                            ->label('Valoare')
+                            ->label(__('Valoare'))
                             ->visible(fn (Get $get): bool => $get('type') === AttributeType::Text->value)
                             ->columnSpanFull(),
                         TextInput::make('value_number')
-                            ->label('Valoare')
+                            ->label(__('Valoare'))
                             ->numeric()
                             ->suffix(fn (Get $get): ?string => $get('unit'))
                             ->visible(fn (Get $get): bool => $get('type') === AttributeType::Number->value),
                         Select::make('value_boolean')
-                            ->label('Valoare')
+                            ->label(__('Valoare'))
                             ->options([
-                                '1' => 'Da',
-                                '0' => 'Nu',
+                                '1' => __('Da'),
+                                '0' => __('Nu'),
                             ])
-                            ->placeholder('—')
+                            ->placeholder('-')
                             ->visible(fn (Get $get): bool => $get('type') === AttributeType::Boolean->value),
                         Select::make('option_id')
-                            ->label('Valoare')
+                            ->label(__('Valoare'))
                             ->options(fn (Get $get): array => self::optionChoices($get('attribute_id')))
-                            ->placeholder('—')
+                            ->placeholder('-')
                             ->visible(fn (Get $get): bool => $get('type') === AttributeType::Select->value),
                         Select::make('option_ids')
-                            ->label('Valori')
+                            ->label(__('Valori'))
                             ->multiple()
                             ->options(fn (Get $get): array => self::optionChoices($get('attribute_id')))
                             ->visible(fn (Get $get): bool => $get('type') === AttributeType::Multiselect->value),
@@ -159,10 +175,10 @@ class ProductResource extends Resource
                     ->visible(fn (Get $get): bool => filled($get('characteristic_values')))
                     ->columnSpanFull(),
                 Toggle::make('is_published')
-                    ->label('Publicat')
+                    ->label(__('Publicat'))
                     ->required(),
                 TextInput::make('sort')
-                    ->label('Ordine')
+                    ->label(__('Ordine'))
                     ->required()
                     ->numeric()
                     ->default(0),
@@ -175,33 +191,33 @@ class ProductResource extends Resource
             ->recordTitleAttribute('name')
             ->columns([
                 TextColumn::make('category.name')
-                    ->label('Categorie')
+                    ->label(__('Categorie'))
                     ->searchable(),
                 TextColumn::make('name')
-                    ->label('Nume')
+                    ->label(__('Nume'))
                     ->searchable(),
                 TextColumn::make('slug')
                     ->label('Slug')
                     ->searchable(),
                 ImageColumn::make('image')
-                    ->label('Poză'),
-                TextColumn::make('manufacturer')
-                    ->label('Producător')
+                    ->label(__('Poză')),
+                TextColumn::make('manufacturer.name')
+                    ->label(__('Producător'))
                     ->searchable(),
                 IconColumn::make('is_published')
-                    ->label('Publicat')
+                    ->label(__('Publicat'))
                     ->boolean(),
                 TextColumn::make('sort')
-                    ->label('Ordine')
+                    ->label(__('Ordine'))
                     ->numeric()
                     ->sortable(),
                 TextColumn::make('created_at')
-                    ->label('Creat la')
+                    ->label(__('Creat la'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
-                    ->label('Actualizat la')
+                    ->label(__('Actualizat la'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

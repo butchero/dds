@@ -29,31 +29,43 @@ class AttributeResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedTag;
 
-    protected static ?string $navigationLabel = 'Caracteristici';
-
-    protected static ?string $modelLabel = 'caracteristică';
-
-    protected static ?string $pluralModelLabel = 'Caracteristici';
-
     protected static bool $hasTitleCaseModelLabel = false;
-
-    protected static string|\UnitEnum|null $navigationGroup = 'Catalog';
 
     protected static ?int $navigationSort = 30;
 
     protected static ?string $recordTitleAttribute = 'name';
+
+    public static function getNavigationLabel(): string
+    {
+        return __('Caracteristici');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('caracteristică');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('Caracteristici');
+    }
+
+    public static function getNavigationGroup(): string|\UnitEnum|null
+    {
+        return __('Catalog');
+    }
 
     public static function form(Schema $schema): Schema
     {
         return $schema
             ->components([
                 TextInput::make('name')
-                    ->label('Nume')
+                    ->label(__('Nume'))
                     ->required(),
                 TextInput::make('slug')
                     ->label('Slug'),
                 Select::make('type')
-                    ->label('Tip')
+                    ->label(__('Tip'))
                     ->options(self::typeOptions())
                     ->required()
                     ->live()
@@ -62,22 +74,22 @@ class AttributeResource extends Resource
                         $set('is_filterable', $type?->filtersByDefault() ?? false);
                     }),
                 TextInput::make('unit')
-                    ->label('Unitate')
+                    ->label(__('Unitate'))
                     ->maxLength(20)
                     ->visible(fn (Get $get): bool => $get('type') === AttributeType::Number->value),
                 Toggle::make('is_filterable')
-                    ->label('Se folosește la filtrare'),
+                    ->label(__('Se folosește la filtrare')),
                 TextInput::make('sort')
-                    ->label('Ordine')
+                    ->label(__('Ordine'))
                     ->required()
                     ->numeric()
                     ->default(0),
                 Repeater::make('options')
-                    ->label('Valori')
+                    ->label(__('Valori'))
                     ->relationship()
                     ->schema([
                         TextInput::make('label')
-                            ->label('Valoare')
+                            ->label(__('Valoare'))
                             ->required()
                             ->distinct(),
                         TextInput::make('slug')
@@ -98,27 +110,27 @@ class AttributeResource extends Resource
             ->recordTitleAttribute('name')
             ->columns([
                 TextColumn::make('name')
-                    ->label('Nume')
+                    ->label(__('Nume'))
                     ->searchable(),
                 TextColumn::make('type')
-                    ->label('Tip')
+                    ->label(__('Tip'))
                     ->formatStateUsing(fn (AttributeType $state): string => $state->label()),
                 TextColumn::make('unit')
-                    ->label('Unitate'),
+                    ->label(__('Unitate')),
                 IconColumn::make('is_filterable')
-                    ->label('Filtrare')
+                    ->label(__('Filtrare'))
                     ->boolean(),
                 TextColumn::make('sort')
-                    ->label('Ordine')
+                    ->label(__('Ordine'))
                     ->numeric()
                     ->sortable(),
                 TextColumn::make('created_at')
-                    ->label('Creat la')
+                    ->label(__('Creat la'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
-                    ->label('Actualizat la')
+                    ->label(__('Actualizat la'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

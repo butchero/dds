@@ -149,10 +149,16 @@ class ClientAccountTest extends TestCase
         $user = User::factory()->create();
         $address = $user->addresses()->create($this->address('Acasă'));
         $company = $user->billingProfiles()->create($this->company('Firma Unu', 'RO123'));
+        $equipment = $user->equipment()->create([
+            'name' => 'Centrală',
+            'address_id' => $address->id,
+            'interval_months' => 24,
+        ]);
 
         $this->actingAs($user)->post(route('account.appointment'), [
             'address_id' => $address->id,
             'billing_type' => 'company',
+            'equipment_id' => $equipment->id,
             'requested_on' => '2026-11-01',
             'note' => 'Revizie',
         ])->assertRedirect(route('account.appointments'));
@@ -162,6 +168,23 @@ class ClientAccountTest extends TestCase
         $this->assertSame($company->id, $appointment->billing_profile_id);
         $this->assertSame('vali.ciuca@gmail.com', SiteSetting::get('company_email'));
         Notification::assertSentOnDemand(AppointmentRequestedNotification::class);
+    }
+
+    public function test_appointment_asks_for_equipment_before_it_can_be_sent(): void
+    {
+        $user = User::factory()->create();
+        $address = $user->addresses()->create($this->address('Acasă'));
+
+        $this->actingAs($user)->get(route('account.appointments'))
+            ->assertOk()
+            ->assertSee('Nu ai niciun echipament. Adaugă-l înainte să trimiți cererea.');
+
+        $this->actingAs($user)->post(route('account.appointment'), [
+            'address_id' => $address->id,
+            'billing_type' => 'individual',
+        ])->assertSessionHasErrors('equipment_id');
+
+        $this->assertSame(0, Appointment::query()->count());
     }
 
     public function test_appointment_keeps_the_chosen_company_and_history_shows_a_finished_visit(): void
@@ -258,6 +281,8 @@ class ClientAccountTest extends TestCase
         $this->actingAs($user)->get(route('account.addresses'))
             ->assertOk()
             ->assertSee('Adaugă adresa')
+            ->assertSee('CONTUL MEU')
+            ->assertDontSee('>Categorii<', false)
             ->assertSee('aria-current="page"', false);
 
         $this->actingAs($user)->get(route('account.equipment'))->assertOk()->assertSee('Echipamente');

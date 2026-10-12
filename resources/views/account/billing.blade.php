@@ -21,40 +21,85 @@
     @endforeach
     <form class="mt-3 max-w-sm space-y-3" method="post" action="{{ route('account.billing.store') }}">
         @csrf
-        <x-ui.select name="type" required>
-            <option value="individual">{{ __('Persoană fizică') }}</option>
-            <option value="company">{{ __('Persoană juridică') }}</option>
-        </x-ui.select>
-        <x-ui.input type="text" name="last_name" :placeholder="__('Nume')" />
-        <x-ui.input type="text" name="first_name" :placeholder="__('Prenume')" />
-        <x-ui.input type="text" name="company_name" :placeholder="__('Denumire firmă')" />
-        <x-ui.input type="text" name="cui" :placeholder="__('CUI')" />
-        <x-ui.input type="text" name="registration_number" :placeholder="__('Nr. Reg. Comerțului')" />
+        <label class="block text-sm">
+            <span class="mb-1 block">{{ __('Tip') }}</span>
+            <x-ui.select name="type" required>
+                <option value="individual">{{ __('Persoană fizică') }}</option>
+                <option value="company">{{ __('Persoană juridică') }}</option>
+            </x-ui.select>
+        </label>
+        <label class="block text-sm">
+            <span class="mb-1 block">{{ __('Nume') }}</span>
+            <x-ui.input type="text" name="last_name" />
+        </label>
+        <label class="block text-sm">
+            <span class="mb-1 block">{{ __('Prenume') }}</span>
+            <x-ui.input type="text" name="first_name" />
+        </label>
+        <label class="block text-sm">
+            <span class="mb-1 block">{{ __('Denumire firmă') }}</span>
+            <x-ui.input type="text" name="company_name" />
+        </label>
+        <label class="block text-sm">
+            <span class="mb-1 block">{{ __('CUI') }}</span>
+            <x-ui.input type="text" name="cui" />
+        </label>
+        <label class="block text-sm">
+            <span class="mb-1 block">{{ __('Număr de înregistrare') }}</span>
+            <x-ui.input type="text" name="registration_number" />
+        </label>
         <label class="flex items-center gap-2 text-sm">
             <input type="checkbox" name="is_vat_payer" value="1">
             {{ __('Plătitor de TVA') }}
         </label>
         @if ($user->addresses->isNotEmpty())
-            <x-ui.select name="copy_address_id">
-                <option value="">{{ __('Copiază o adresă de service') }}</option>
-                @foreach ($user->addresses as $address)
-                    <option value="{{ $address->id }}">{{ $address->line() }}</option>
+            <label class="block text-sm">
+                <span class="mb-1 block">{{ __('Copiază o adresă de service') }}</span>
+                <x-ui.select name="copy_address_id">
+                    <option value="">{{ __('Nu copia') }}</option>
+                    @foreach ($user->addresses as $address)
+                        <option value="{{ $address->id }}">{{ $address->cardLine() }}</option>
+                    @endforeach
+                </x-ui.select>
+            </label>
+        @endif
+        <label class="block text-sm">
+            <span class="mb-1 block">{{ __('Județ') }}</span>
+            <x-ui.select name="county">
+                <option value="">{{ __('Alege județul') }}</option>
+                @foreach ($counties as $county)
+                    <option value="{{ $county }}">{{ $county }}</option>
                 @endforeach
             </x-ui.select>
-        @endif
-        <x-ui.select name="county">
-            <option value="">{{ __('Județ') }}</option>
-            @foreach ($counties as $county)
-                <option value="{{ $county }}">{{ $county }}</option>
-            @endforeach
-        </x-ui.select>
-        <x-ui.input type="text" name="city" :placeholder="__('Localitate')" />
-        <x-ui.input type="text" name="street" :placeholder="__('Stradă')" />
-        <x-ui.input type="text" name="street_number" :placeholder="__('Număr')" />
-        <x-ui.input type="text" name="postal_code" :placeholder="__('Cod poștal')" />
-        <x-ui.input type="text" name="details" :placeholder="__('Bloc, scară, apartament')" />
-        <x-ui.input type="text" name="bank" :placeholder="__('Bancă')" />
-        <x-ui.input type="text" name="iban" :placeholder="__('IBAN')" />
+        </label>
+        <label class="block text-sm">
+            <span class="mb-1 block">{{ __('Localitate') }}</span>
+            <x-ui.input type="text" name="city" />
+        </label>
+        <label class="block text-sm">
+            <span class="mb-1 block">{{ __('Stradă') }}</span>
+            <x-ui.input type="text" name="street" />
+        </label>
+        <label class="block text-sm">
+            <span class="mb-1 block">{{ __('Număr') }}</span>
+            <x-ui.input type="text" name="street_number" />
+        </label>
+        <label class="block text-sm">
+            <span class="mb-1 block">{{ __('Cod poștal') }}</span>
+            <x-ui.input type="text" name="postal_code" />
+        </label>
+        <label class="block text-sm">
+            <span class="mb-1 block">{{ __('Detalii') }}</span>
+            <x-ui.input type="text" name="details" />
+        </label>
+        <label class="block text-sm">
+            <span class="mb-1 block">{{ __('Bancă') }}</span>
+            <x-ui.input type="text" name="bank" />
+        </label>
+        <label class="block text-sm">
+            <span class="mb-1 block">{{ __('IBAN') }}</span>
+            <x-ui.input type="text" name="iban" />
+        </label>
         <button class="{{ $button }}" type="submit">{{ __('Adaugă facturarea') }}</button>
     </form>
 </x-account-page>
